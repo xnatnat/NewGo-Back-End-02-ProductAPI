@@ -6,7 +6,6 @@ import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,5 +45,20 @@ public class ProdutoInfoController extends HttpServlet {
      */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHash(RequestUtils.extrairHash(req)).toJson());
+    }
+
+    /**
+     * Lida com solicitações HTTP DELETE para deletar um produto.
+     *
+     * Este método recebe uma solicitação DELETE para excluir um produto com base em seu identificador único (hash).
+     * Ele responde com um status HTTP "No Content" após a exclusão bem-sucedida do produto.
+     *
+     * @param req  O objeto HttpServletRequest que contém a solicitação HTTP.
+     * @param resp O objeto HttpServletResponse usado para enviar a resposta HTTP.
+     */
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        produtoService.deletar(RequestUtils.extrairHash(req));
+        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }

@@ -82,4 +82,9 @@ public class ProdutoService {
                 .map(ProdutoDTO::new)
                 .collect(Collectors.toList());
     }
+
+    public void deletar(String hash) {
+        if(!produtoDAO.deletar(produtoValidacao.validarHash(hash)))
+            throw new NoSuchElementException("Produto não encontrado.");
+    }
 }

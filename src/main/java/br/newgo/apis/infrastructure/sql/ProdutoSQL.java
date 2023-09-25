@@ -43,4 +43,13 @@ public class ProdutoSQL {
     public String buscarTodos(){
         return "SELECT * FROM PRODUTOS";
     }
+
+    /**
+     * Retorna uma consulta SQL para deletar um produto da tabela de produtos com base no ID.
+     *
+     * @return Uma string contendo a consulta SQL de deleção.
+     */
+    public String deletar(){
+        return "DELETE FROM PRODUTOS WHERE hash = ?";
+    }
 }

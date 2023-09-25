@@ -126,6 +126,23 @@ public class ProdutoDAO {
     }
 
     /**
+     * Deleta um produto do banco de dados com base em seu hash.
+     *
+     * @param hash O UUID do produto a ser deletado.
+     * @return true se o produto foi deletado com sucesso, false caso contrário.
+     * @throws RuntimeException Se ocorrer um erro durante a operação de exclusão.
+     */
+    public boolean deletar(UUID hash) {
+        try (Connection conexao = ConexaoBancoDados.obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.deletar())) {
+            stmt.setObject(1, hash);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar o produto.", e);
+        }
+    }
+
+    /**
      * Configura os parâmetros do PreparedStatement para inserir um Produto no banco de dados.
      * @param produto O objeto Produto a ser inserido.
      * @param stmt O PreparedStatement a ser configurado.
