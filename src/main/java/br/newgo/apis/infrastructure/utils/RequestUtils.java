@@ -1,7 +1,5 @@
 package br.newgo.apis.infrastructure.utils;
 
-import br.newgo.apis.presentation.dtos.ProdutoDTO;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
