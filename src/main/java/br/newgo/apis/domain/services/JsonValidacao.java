@@ -1,4 +1,4 @@
-package br.newgo.apis.domain.model.services;
+package br.newgo.apis.domain.services;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

@@ -1,4 +1,4 @@
-package br.newgo.apis.domain.model.services;
+package br.newgo.apis.domain.services;
 
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
