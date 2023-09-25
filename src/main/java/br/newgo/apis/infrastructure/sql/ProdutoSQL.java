@@ -17,4 +17,13 @@ public class ProdutoSQL {
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
+    /**
+     * Retorna uma consulta SQL para verificar se existe um produto com um determinado nome ou código EAN-13 na tabela de produtos.
+     *
+     * @return Uma string contendo a consulta SQL para verificar a existência.
+     */
+    public String existeProdutoComNomeOuEan13(){
+        return "SELECT COUNT(*) FROM PRODUTOS WHERE nome = ? OR ean13 = ?";
+    }
+
 }
