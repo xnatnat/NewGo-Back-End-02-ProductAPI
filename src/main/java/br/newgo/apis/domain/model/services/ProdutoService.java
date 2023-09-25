@@ -13,23 +13,22 @@ public class ProdutoService {
     private final ProdutoDAO produtoDAO;
     private final ProdutoValidacao produtoValidacao;
     private final ProdutoMapeador produtoMapeador;
+    private final JsonValidacao jsonValidacao;
 
     public ProdutoService(ProdutoDAO produtoDAO){
         this.produtoDAO = produtoDAO;
         this.produtoValidacao = new ProdutoValidacao(produtoDAO);
         this.produtoMapeador = new ProdutoMapeador();
+        this.jsonValidacao = new JsonValidacao();
     }
 
-    /**
-     * Cria um novo produto com base nos dados fornecidos em um objeto ProdutoDTO.
-     *
-     * @param produtoDTO O objeto ProdutoDTO contendo os dados do produto a ser criado.
-     * @return Um objeto ProdutoDTO representando o produto criado.
-     */
-    public ProdutoDTO criar(ProdutoDTO produtoDTO) {
+    public ProdutoDTO criar(String produtoInserido) {
+        jsonValidacao.validarJson(produtoInserido);
+
+        ProdutoDTO produtoDTO = ProdutoDTO.fromJson(produtoInserido);
+        produtoValidacao.validarProduto(produtoDTO);
 
         Produto produto = produtoMapeador.converterParaProduto(produtoDTO);
-        produtoValidacao.validarProduto(produto);
 
         return produtoMapeador.converterParaDTO(
                 obterPorHash(
@@ -45,7 +44,7 @@ public class ProdutoService {
      * @throws NoSuchElementException   Se o produto não for encontrado.
      */
     private Produto obterPorHash(String hash){
-        UUID uuid = UUID.fromString(hash);
+        UUID uuid = produtoValidacao.validarHash(hash);
         Produto produto = produtoDAO.buscarPorHash(uuid);
 
         if (produto == null) {

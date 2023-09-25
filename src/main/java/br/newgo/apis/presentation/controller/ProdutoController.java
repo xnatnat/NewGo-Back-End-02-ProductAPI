@@ -3,6 +3,7 @@ package br.newgo.apis.presentation.controller;
 import br.newgo.apis.domain.model.services.ProdutoService;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.infrastructure.utils.DTOUtils;
+import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
@@ -39,8 +40,7 @@ public class ProdutoController extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
-        ProdutoDTO produtoDTO = DTOUtils.extrairProdutoDTODaRequisicao(req);
-        produtoDTO = produtoService.criar(produtoDTO);
+        ProdutoDTO produtoDTO = produtoService.criar(RequestUtils.lerCorpoDaRequisicao(req));
 
         String uri = req.getRequestURL().toString() + "/" + produtoDTO.getHash();
 
