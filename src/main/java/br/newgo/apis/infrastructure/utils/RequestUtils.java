@@ -17,7 +17,7 @@ public class RequestUtils {
      * @return Uma string contendo o corpo da requisição.
      * @throws RuntimeException Se ocorrer um erro ao ler o corpo da requisição.
      */
-    static String lerCorpoDaRequisicao(HttpServletRequest req)  {
+    public static String lerCorpoDaRequisicao(HttpServletRequest req)  {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()))) {
             return reader.lines().collect(Collectors.joining());
         } catch (IOException e) {
