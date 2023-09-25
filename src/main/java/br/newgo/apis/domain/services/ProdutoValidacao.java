@@ -1,5 +1,6 @@
 package br.newgo.apis.domain.services;
 
+import br.newgo.apis.domain.model.Produto;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
@@ -22,10 +23,12 @@ public class ProdutoValidacao {
      * @param produto O objeto Produto a ser validado.
      * @throws IllegalArgumentException Se o produto for inválido.
      */
-    public void validarProduto(ProdutoDTO produto) {
+    public ProdutoDTO validarProduto(ProdutoDTO produto) {
         validarNomeNuloOuVazio(produto.getNome());
         validarNomeOuEan13Duplicado(produto.getNome(), produto.getEan13());
+        produto = validarValoresNulos(produto);
         validarValoresNegativos(produto.getPreco(), produto.getQuantidade(), produto.getEstoqueMin());
+        return produto;
     }
 
     /**
@@ -65,6 +68,25 @@ public class ProdutoValidacao {
         if (preco < 0 || quantidade < 0 || estoqueMin < 0) {
             throw new IllegalArgumentException("Não é permitido cadastrar produtos com preço, quantidade ou estoque mínimo negativos.");
         }
+    }
+
+    /**
+     * Valida e atualiza os valores nulos em um objeto ProdutoDTO, atribuindo 0.0 se forem nulos.
+     *
+     * @param produto O objeto ProdutoDTO a ser validado e atualizado.
+     * @return O objeto ProdutoDTO após a validação e atualização dos valores nulos.
+     */
+    private ProdutoDTO validarValoresNulos(ProdutoDTO produto){
+        if (produto.getPreco() == null) {
+            produto.setPreco(0.0);
+        }
+        if (produto.getQuantidade() == null) {
+            produto.setQuantidade(0.0);
+        }
+        if (produto.getEstoqueMin() == null) {
+            produto.setEstoqueMin(0.0);
+        }
+        return produto;
     }
 
     /**

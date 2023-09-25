@@ -34,8 +34,7 @@ public class ProdutoService {
     public ProdutoDTO criar(String produtoInserido) {
         jsonValidacao.validarJson(produtoInserido);
 
-        ProdutoDTO produtoDTO = ProdutoDTO.fromJson(produtoInserido);
-        produtoValidacao.validarProduto(produtoDTO);
+        ProdutoDTO produtoDTO = produtoValidacao.validarProduto(ProdutoDTO.fromJson(produtoInserido));
 
         Produto produto = produtoMapeador.converterParaProduto(produtoDTO);
 

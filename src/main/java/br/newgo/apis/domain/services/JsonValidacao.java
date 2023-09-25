@@ -1,5 +1,6 @@
 package br.newgo.apis.domain.services;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -24,6 +25,7 @@ public class JsonValidacao {
         JsonObject produtoJson = parseJson(json);
         verificarCamposObrigatorios(produtoJson);
         verificarCamposNaoPermitidos(produtoJson);
+        verificarValoresEmpty(produtoJson);
     }
 
     /**
@@ -65,6 +67,21 @@ public class JsonValidacao {
         for (String campo : produtoJson.keySet()) {
             if (!containsIgnoreCase(CAMPOS_OBRIGATORIOS, campo)) {
                 throw new IllegalArgumentException("JSON inválido. O campo '" + campo + "' não é permitido.");
+            }
+        }
+    }
+
+    /**
+     * Verifica se os valores dos campos no JsonObject estão vazios.
+     *
+     * @param produtoJson O JsonObject a ser verificado.
+     * @throws IllegalArgumentException Se algum valor de campo estiver vazio.
+     */
+    private void verificarValoresEmpty(JsonObject produtoJson) {
+        for (String campo : produtoJson.keySet()) {
+            JsonElement elemento = produtoJson.get(campo);
+            if (elemento != null && elemento.isJsonPrimitive() && elemento.getAsString().isEmpty()) {
+                throw new IllegalArgumentException("JSON inválido. O valor do campo '" + campo + "' está vazio.");
             }
         }
     }
