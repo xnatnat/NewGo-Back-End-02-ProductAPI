@@ -3,12 +3,14 @@ package br.newgo.apis.domain.model.services;
 import br.newgo.apis.domain.model.Produto;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 
+import java.util.UUID;
+
 /**
  * Classe responsável por validar objetos da classe Produto antes de serem armazenados no banco de dados.
  */
 public class ProdutoValidacao {
 
-    private ProdutoDAO produtoDAO;
+    private final ProdutoDAO produtoDAO;
     public ProdutoValidacao(ProdutoDAO produtoDAO) {
         this.produtoDAO = produtoDAO;
     }
@@ -20,11 +22,9 @@ public class ProdutoValidacao {
      *                                  ou se algum dos valores (preço, quantidade ou estoque mínimo) for negativo.
      */
     public void validarProduto(Produto produto) {
-
         validarNome(produto);
         validarExistenciaDoProduto(produto);
         validarValoresNegativos(produto);
-
     }
 
     /**
@@ -60,4 +60,17 @@ public class ProdutoValidacao {
         }
     }
 
+    /**
+     * Valida o formato do hash.
+     *
+     * @param hash O hash a ser validado.
+     * @throws IllegalArgumentException Se o formato do hash for inválido.
+     */
+    private UUID validarHash(String hash) {
+        try {
+            return UUID.fromString(hash);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Formato de hash inválido.", e);
+        }
+    }
 }
