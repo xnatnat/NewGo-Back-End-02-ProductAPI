@@ -24,4 +24,14 @@ public class RequestUtils {
             throw new RuntimeException("Erro ao ler o corpo da requisição: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Extrai um valor de hash a partir do caminho da requisição HTTP.
+     *
+     * @param req O HttpServletRequest contendo o caminho da requisição.
+     * @return O valor de hash extraído do caminho da requisição.
+     */
+    public static String extrairHash(HttpServletRequest req) {
+        return req.getPathInfo().substring(1);
+    }
 }
