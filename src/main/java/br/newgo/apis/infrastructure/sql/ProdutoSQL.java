@@ -34,4 +34,13 @@ public class ProdutoSQL {
     public String buscarPorHash(){
         return "SELECT * FROM PRODUTOS WHERE hash = ?";
     }
+
+    /**
+     * Retorna uma consulta SQL para buscar todos os produtos na tabela de produtos.
+     *
+     * @return Uma string contendo a consulta SQL de busca de todos os produtos.
+     */
+    public String buscarTodos(){
+        return "SELECT * FROM PRODUTOS";
+    }
 }

@@ -1,11 +1,11 @@
 package br.newgo.apis.presentation.controller;
 
-import br.newgo.apis.domain.model.services.ProdutoService;
+import br.newgo.apis.domain.services.ProdutoService;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
-import br.newgo.apis.infrastructure.utils.DTOUtils;
 import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
+import com.google.gson.Gson;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -47,5 +47,15 @@ public class ProdutoController extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_CREATED);
         resp.setHeader("Location", uri);
         ResponseUtils.escreverJson(resp, produtoDTO.toJson());
+    }
+
+    /**
+     * Manipula solicitações HTTP GET para obter todos os produtos.
+     * @param req O objeto HttpServletRequest que representa a solicitação.
+     * @param resp O objeto HttpServletResponse que representa a resposta.
+     */
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp){
+        ResponseUtils.escreverJson(resp, new Gson().toJson(produtoService.obterTodos()));
     }
 }

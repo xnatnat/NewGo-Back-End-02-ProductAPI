@@ -6,6 +6,8 @@ import br.newgo.apis.infrastructure.sql.ProdutoSQL;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -99,6 +101,28 @@ public class ProdutoDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Busca todos os produtos no banco de dados.
+     *
+     * @return Uma lista de objetos Produto representando os produtos encontrados.
+     * @throws RuntimeException Se ocorrer um erro ao buscar os produtos no banco de dados.
+     */
+    public List<Produto> buscarTodos() {
+        List<Produto> produtos = new ArrayList<>();
+
+        try (Connection conexao = ConexaoBancoDados.obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarTodos())) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    produtos.add(criarProduto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar todos os produtos no banco de dados.", e);
+        }
+        return produtos;
     }
 
     /**
