@@ -5,13 +5,14 @@ import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.infrastructure.utils.ProdutoMapeador;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class ProdutoService {
 
-    private ProdutoDAO produtoDAO;
-    private ProdutoValidacao produtoValidacao;
-    private ProdutoMapeador produtoMapeador;
+    private final ProdutoDAO produtoDAO;
+    private final ProdutoValidacao produtoValidacao;
+    private final ProdutoMapeador produtoMapeador;
 
     public ProdutoService(ProdutoDAO produtoDAO){
         this.produtoDAO = produtoDAO;
@@ -36,13 +37,25 @@ public class ProdutoService {
     }
 
     /**
-     * Obtém um produto com base em seu hash (UUID).
+     * Obtém um produto com base no hash especificado.
      *
-     * @param hash A representação em string do hash (UUID) do produto a ser obtido.
-     * @return Um objeto Produto representando o produto com o hash correspondente.
+     * @param hash O hash do produto a ser obtido.
+     * @return O produto correspondente ao hash.
+     * @throws IllegalArgumentException Se o formato do hash for inválido.
+     * @throws NoSuchElementException   Se o produto não for encontrado.
      */
     private Produto obterPorHash(String hash){
-        return produtoDAO.buscarPorHash(UUID.fromString(hash));
+        UUID uuid = UUID.fromString(hash);
+        Produto produto = produtoDAO.buscarPorHash(uuid);
+
+        if (produto == null) {
+            throw new NoSuchElementException("Produto não encontrado.");
+        }
+
+        return produto;
     }
 
+    public ProdutoDTO obterDtoPorHash(String hash){
+        return produtoMapeador.converterParaDTO(obterPorHash(hash));
+    }
 }
