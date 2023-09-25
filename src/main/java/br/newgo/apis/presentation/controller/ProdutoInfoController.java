@@ -1,8 +1,7 @@
 package br.newgo.apis.presentation.controller;
 
-import br.newgo.apis.domain.model.services.ProdutoService;
+import br.newgo.apis.domain.services.ProdutoService;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
-import br.newgo.apis.infrastructure.utils.DTOUtils;
 import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
 
@@ -19,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
  * Ela recebe solicitações GET, PUT e DELETE para realizar operações em produtos e responde com os resultados
  * correspondentes.
  */
-@WebServlet(name= "ProdutoInfoController", urlPatterns = "/api/v1/produtos/*")
 public class ProdutoInfoController extends HttpServlet {
     private ProdutoService produtoService;
 

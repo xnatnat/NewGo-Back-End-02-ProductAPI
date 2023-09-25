@@ -14,4 +14,13 @@
         <url-pattern>/api/v1/produtos</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ProdutoInfoController</servlet-name>
+        <servlet-class>br.newgo.apis.presentation.controller.ProdutoInfoController</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ProdutoInfoController</servlet-name>
+        <url-pattern>/api/v1/produtos/*</url-pattern>
+    </servlet-mapping>
 </web-app>
