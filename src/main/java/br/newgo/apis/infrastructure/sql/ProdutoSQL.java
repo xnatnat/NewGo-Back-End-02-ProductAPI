@@ -56,4 +56,8 @@ public class ProdutoSQL {
     public String atualizarStatusLativo() {
         return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
     }
+
+    public String atualizar(){
+        return "UPDATE PRODUTOS SET descricao = ?, preco=?, quantidade=?, estoque_min=?, dtupdate=? WHERE hash = ?";
+    }
 }

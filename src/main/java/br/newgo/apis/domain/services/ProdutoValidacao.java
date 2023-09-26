@@ -64,7 +64,7 @@ public class ProdutoValidacao {
      * @param estoqueMin  O estoque mínimo a ser validado.
      * @throws IllegalArgumentException Se algum dos valores (preço, quantidade ou estoque mínimo) for negativo.
      */
-    private void validarValoresNegativos(double preco, double quantidade, double estoqueMin)  {
+    public void validarValoresNegativos(double preco, double quantidade, double estoqueMin)  {
         if (preco < 0 || quantidade < 0 || estoqueMin < 0) {
             throw new IllegalArgumentException("Não é permitido cadastrar produtos com preço, quantidade ou estoque mínimo negativos.");
         }
@@ -102,5 +102,10 @@ public class ProdutoValidacao {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Formato de hash inválido.", e);
         }
+    }
+
+    public void validarSeProdutoEstaAtivo(Produto produto){
+        if(!produto.isLativo())
+            throw new IllegalStateException("Produto não está ativo.");
     }
 }

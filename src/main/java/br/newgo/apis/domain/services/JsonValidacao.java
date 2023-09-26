@@ -37,6 +37,14 @@ public class JsonValidacao {
     } //TODO refatorar; validar valor;
 
 
+    public void validarJsonAtualizacao(String json){
+        JsonObject produtoJson = parseJson(json);
+        String[] campos = {"descricao", "preco", "quantidade", "estoqueMin"};
+
+        verificarCamposNaoPermitidos(produtoJson, campos);
+        verificarValoresEmpty(produtoJson);
+    }
+
     /**
      * Analisa o JSON fornecido e o converte em um objeto JsonObject.
      *

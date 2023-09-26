@@ -3,6 +3,7 @@ package br.newgo.apis.infrastructure.dao;
 import br.newgo.apis.domain.model.Produto;
 import br.newgo.apis.infrastructure.ConexaoBancoDados;
 import br.newgo.apis.infrastructure.sql.ProdutoSQL;
+import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -141,8 +142,20 @@ public class ProdutoDAO {
         }
     }
 
+    public void atualizar(Produto produto){
+        try (Connection conexao = ConexaoBancoDados.obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.atualizar())) {
+            setDadosDoProdutoParaAtualizacao(produto, stmt);
+            if (stmt.executeUpdate() == 0) {
+                throw new RuntimeException("A operação de atualizar o produto falhou. Nenhuma linha foi afetada.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);
+        }
+    }
+
     /**
-     * Deleta um produto do banco de dados com base em seu hash.
+     *  Deleta um produto do banco de dados com base em seu hash.
      *
      * @param hash O UUID do produto a ser deletado.
      * @return true se o produto foi deletado com sucesso, false caso contrário.
@@ -176,6 +189,15 @@ public class ProdutoDAO {
         stmt.setBoolean(9, false);
     }
 
+    private void setDadosDoProdutoParaAtualizacao(Produto produto, PreparedStatement stmt) throws SQLException {
+        stmt.setString(1, produto.getDescricao());
+        stmt.setDouble(2, produto.getPreco());
+        stmt.setDouble(3, produto.getQuantidade());
+        stmt.setDouble(4, produto.getEstoqueMin());
+        stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+        stmt.setObject(6, produto.getHash());
+    }
+
     /**
      * Cria um objeto Produto com base nos dados de um ResultSet.
      *
@@ -194,9 +216,9 @@ public class ProdutoDAO {
         produto.setHash(UUID.fromString(resultado.getString("hash")));
         produto.setLativo(resultado.getBoolean("lativo"));
         produto.setDtCreate(resultado.getTimestamp("dtcreate").toLocalDateTime());
-        LocalDateTime dtUpdate = resultado.getTimestamp("dtupdate") != null
+        produto.setDtUpdate(resultado.getTimestamp("dtupdate") != null
                 ? resultado.getTimestamp("dtupdate").toLocalDateTime()
-                : null;
+                : null);
 
         return produto;
     }

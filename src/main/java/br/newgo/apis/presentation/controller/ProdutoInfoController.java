@@ -4,6 +4,7 @@ import br.newgo.apis.domain.services.ProdutoService;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
+import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -47,6 +48,14 @@ public class ProdutoInfoController extends HttpServlet {
         ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHash(RequestUtils.extrairHash(req)).toJson());
     }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        ResponseUtils.escreverJson(resp,
+                produtoService.atualizar(RequestUtils.extrairHash(req), RequestUtils.lerCorpoDaRequisicao(req))
+                        .toJson());
+
+    }
+
     /**
      * Lida com solicitações HTTP DELETE para deletar um produto.
      *
@@ -61,4 +70,6 @@ public class ProdutoInfoController extends HttpServlet {
         produtoService.deletar(RequestUtils.extrairHash(req));
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
+
+
 }

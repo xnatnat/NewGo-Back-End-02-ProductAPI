@@ -90,8 +90,41 @@ public class ProdutoService {
             throw new NoSuchElementException("Produto não atualizado.");
     }
 
+    public ProdutoDTO atualizar(String hash, String jsonInserido){
+        jsonValidacao.validarJsonAtualizacao(jsonInserido);
+
+        Produto produto = obterPorHash(hash);
+
+        produtoValidacao.validarSeProdutoEstaAtivo(produto);
+        produto = atualizarInformacoesProduto(produto,ProdutoDTO.fromJson(jsonInserido));
+        produtoValidacao.validarValoresNegativos(produto.getPreco(), produto.getQuantidade(), produto.getEstoqueMin());
+
+        produtoDAO.atualizar(produto);
+
+        return produtoMapeador.converterParaDTO(obterPorHash(hash));
+    }
+
     public void deletar(String hash) {
         if(!produtoDAO.deletar(produtoValidacao.validarHash(hash)))
             throw new NoSuchElementException("Produto não deletado.");
+    }
+
+    private Produto atualizarInformacoesProduto(Produto produto, ProdutoDTO produtoDto) {
+        if (produtoDto.getDescricao() != null) {
+            produto.setDescricao(produtoDto.getDescricao());
+        }
+
+        if (produtoDto.getPreco() != null) {
+            produto.setPreco(produtoDto.getPreco());
+        }
+
+        if (produtoDto.getQuantidade() != null) {
+            produto.setQuantidade(produtoDto.getQuantidade());
+        }
+
+        if (produtoDto.getEstoqueMin() != null) {
+            produto.setEstoqueMin(produtoDto.getEstoqueMin());
+        }
+        return produto;
     }
 }
