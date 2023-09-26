@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ProdutoService {
-
     private final ProdutoDAO produtoDAO;
     private final ProdutoValidacao produtoValidacao;
     private final ProdutoMapeador produtoMapeador;
@@ -72,6 +71,13 @@ public class ProdutoService {
         return produtoMapeador.converterParaDTO(obterPorHash(hash));
     }
 
+    public ProdutoDTO obterDtoPorHashSeProdutoAtivo(String hash){
+        Produto produto = obterPorHash(hash);
+        if(!produto.isLativo())
+            throw new NoSuchElementException("Produto não está ativo.");
+        return produtoMapeador.converterParaDTO(produto);
+    }
+
     /**
      * Obtém uma lista de todos os produtos disponíveis no sistema.
      *
@@ -79,6 +85,13 @@ public class ProdutoService {
      */
     public List<ProdutoDTO> obterTodos(){
         return produtoDAO.buscarTodos().stream()
+                .map(ProdutoDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProdutoDTO> obterTodosPorStatus(String lativoParam) {
+        return produtoDAO.buscarTodosPorStatus(Boolean.parseBoolean(lativoParam))
+                .stream()
                 .map(ProdutoDTO::new)
                 .collect(Collectors.toList());
     }

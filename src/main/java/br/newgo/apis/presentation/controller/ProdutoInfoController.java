@@ -4,7 +4,6 @@ import br.newgo.apis.domain.services.ProdutoService;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
-import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -45,14 +44,24 @@ public class ProdutoInfoController extends HttpServlet {
      * @param resp O objeto HttpServletResponse usado para enviar a resposta HTTP.
      */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHash(RequestUtils.extrairHash(req)).toJson());
+
+        String lativoParam = req.getParameter("lativo");
+
+        if(lativoParam == null)
+            ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHash(RequestUtils.extrairHash(req)).toJson());
+
+        else if(lativoParam.equalsIgnoreCase("true"))
+            ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHashSeProdutoAtivo(RequestUtils.extrairHash(req)).toJson());
+
+        else
+            throw new IllegalArgumentException("Valor do parametro inválido.");
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         ResponseUtils.escreverJson(resp,
-                produtoService.atualizar(RequestUtils.extrairHash(req), RequestUtils.lerCorpoDaRequisicao(req))
-                        .toJson());
+                produtoService.atualizar(RequestUtils.extrairHash(req),
+                                RequestUtils.lerCorpoDaRequisicao(req)).toJson());
 
     }
 
@@ -70,6 +79,4 @@ public class ProdutoInfoController extends HttpServlet {
         produtoService.deletar(RequestUtils.extrairHash(req));
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
-
-
 }
