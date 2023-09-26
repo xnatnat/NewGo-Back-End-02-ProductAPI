@@ -40,12 +40,14 @@ public class ProdutoController extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
+
         ProdutoDTO produtoDTO = produtoService.criar(RequestUtils.lerCorpoDaRequisicao(req));
 
         String uri = req.getRequestURL().toString() + "/" + produtoDTO.getHash();
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
         resp.setHeader("Location", uri);
+
         ResponseUtils.escreverJson(resp, produtoDTO.toJson());
     }
 
@@ -56,6 +58,16 @@ public class ProdutoController extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
-        ResponseUtils.escreverJson(resp, new Gson().toJson(produtoService.obterTodos()));
+
+        String lativoParam = req.getParameter("lativo");
+
+        if(lativoParam == null)
+            ResponseUtils.escreverJson(resp, new Gson().toJson(produtoService.obterTodos()));
+
+        else if(lativoParam.equalsIgnoreCase("true"))
+            ResponseUtils.escreverJson(resp, new Gson().toJson(produtoService.obterTodosPorStatus(lativoParam)));
+
+        else
+            throw new IllegalArgumentException("Valor do parametro inválido.");
     }
 }

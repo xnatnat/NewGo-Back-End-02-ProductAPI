@@ -44,6 +44,10 @@ public class ProdutoSQL {
         return "SELECT * FROM PRODUTOS";
     }
 
+    public String buscarTodosPorStatus(){
+        return "SELECT * FROM PRODUTOS WHERE lativo = ?";
+    }
+
     /**
      * Retorna uma consulta SQL para deletar um produto da tabela de produtos com base no ID.
      *

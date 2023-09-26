@@ -3,7 +3,6 @@ package br.newgo.apis.infrastructure.dao;
 import br.newgo.apis.domain.model.Produto;
 import br.newgo.apis.infrastructure.ConexaoBancoDados;
 import br.newgo.apis.infrastructure.sql.ProdutoSQL;
-import br.newgo.apis.presentation.dtos.ProdutoDTO;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -126,6 +125,23 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    public List<Produto> buscarTodosPorStatus(boolean lativo) {
+        List<Produto> produtos = new ArrayList<>();
+
+        try (Connection conexao = ConexaoBancoDados.obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarTodosPorStatus())) {
+            stmt.setBoolean(1, lativo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    produtos.add(criarProduto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar todos os produtos no banco de dados.", e);
+        }
+        return produtos;
+    }
+
     public boolean atualizarStatusLativo(boolean lativo, UUID hash){
         try (Connection conexao = ConexaoBancoDados.obterConexao();
              PreparedStatement stmt = conexao.prepareStatement(produtoSQL.atualizarStatusLativo())) {
@@ -219,7 +235,6 @@ public class ProdutoDAO {
         produto.setDtUpdate(resultado.getTimestamp("dtupdate") != null
                 ? resultado.getTimestamp("dtupdate").toLocalDateTime()
                 : null);
-
         return produto;
     }
 }
