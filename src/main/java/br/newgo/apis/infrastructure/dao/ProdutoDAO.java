@@ -142,6 +142,22 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    public List<Produto> buscarTodosComEstoqueBaixo(){
+        List<Produto> produtos = new ArrayList<>();
+
+        try (Connection conexao = ConexaoBancoDados.obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarTodosComEstoqueBaixo())) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    produtos.add(criarProduto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar todos os produtos no banco de dados.", e);
+        }
+        return produtos;
+    }
+
     public boolean atualizarStatusLativo(boolean lativo, UUID hash){
         try (Connection conexao = ConexaoBancoDados.obterConexao();
              PreparedStatement stmt = conexao.prepareStatement(produtoSQL.atualizarStatusLativo())) {

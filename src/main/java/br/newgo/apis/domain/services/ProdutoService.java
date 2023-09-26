@@ -4,6 +4,7 @@ import br.newgo.apis.domain.model.Produto;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.infrastructure.utils.ProdutoMapeador;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
+import com.google.gson.JsonElement;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -92,6 +93,12 @@ public class ProdutoService {
     public List<ProdutoDTO> obterTodosPorStatus(String lativoParam) {
         return produtoDAO.buscarTodosPorStatus(Boolean.parseBoolean(lativoParam))
                 .stream()
+                .map(ProdutoDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProdutoDTO> obterTodosComEstoqueBaixo(){
+        return produtoDAO.buscarTodosComEstoqueBaixo().stream()
                 .map(ProdutoDTO::new)
                 .collect(Collectors.toList());
     }
