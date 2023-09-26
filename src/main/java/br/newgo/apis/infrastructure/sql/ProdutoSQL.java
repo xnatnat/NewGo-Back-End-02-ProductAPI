@@ -26,6 +26,13 @@ public class ProdutoSQL {
         return "SELECT COUNT(*) FROM PRODUTOS WHERE nome = ? OR ean13 = ?";
     }
 
+    public String atualizarStatusLativo() {
+        return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
+    }
+
+    public String atualizar(){
+        return "UPDATE PRODUTOS SET descricao = ?, preco=?, quantidade=?, estoque_min=?, dtupdate=? WHERE hash = ?";
+    }
     /**
      * Retorna uma consulta SQL para buscar um produto com base no hash na tabela de produtos.
      *
@@ -48,6 +55,9 @@ public class ProdutoSQL {
         return "SELECT * FROM PRODUTOS WHERE lativo = ?";
     }
 
+    public String buscarTodosComEstoqueBaixo() {
+        return "SELECT * FROM PRODUTOS WHERE quantidade < estoque_min";}
+
     /**
      * Retorna uma consulta SQL para deletar um produto da tabela de produtos com base no ID.
      *
@@ -55,13 +65,5 @@ public class ProdutoSQL {
      */
     public String deletar(){
         return "DELETE FROM PRODUTOS WHERE hash = ?";
-    }
-
-    public String atualizarStatusLativo() {
-        return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
-    }
-
-    public String atualizar(){
-        return "UPDATE PRODUTOS SET descricao = ?, preco=?, quantidade=?, estoque_min=?, dtupdate=? WHERE hash = ?";
     }
 }
