@@ -27,14 +27,14 @@ public class ProdutoService {
     /**
      * Cria um novo produto a partir dos dados inseridos.
      *
-     * @param produtoInserido O JSON representando o produto a ser criado.
+     * @param jsonInserido O JSON representando o produto a ser criado.
      * @return Um objeto ProdutoDTO representando o produto criado.
      * @throws IllegalArgumentException Se o JSON inserido for inválido ou se algum dos dados do produto não atender às regras de validação.
      */
-    public ProdutoDTO criar(String produtoInserido) {
-        jsonValidacao.validarJson(produtoInserido);
+    public ProdutoDTO criar(String jsonInserido) {
+        jsonValidacao.validarJson(jsonInserido);
 
-        ProdutoDTO produtoDTO = produtoValidacao.validarProduto(ProdutoDTO.fromJson(produtoInserido));
+        ProdutoDTO produtoDTO = produtoValidacao.validarProduto(ProdutoDTO.fromJson(jsonInserido));
 
         Produto produto = produtoMapeador.converterParaProduto(produtoDTO);
 
@@ -83,8 +83,15 @@ public class ProdutoService {
                 .collect(Collectors.toList());
     }
 
+    public void atualizarStatusLativo(String hash, String jsonInserido){
+        Boolean lativo = jsonValidacao.validarJsonStatusERetornarValor(jsonInserido);
+        Produto produto = obterPorHash(hash);
+        if(!produtoDAO.atualizarStatusLativo(lativo, produto.getHash()))
+            throw new NoSuchElementException("Produto não atualizado.");
+    }
+
     public void deletar(String hash) {
         if(!produtoDAO.deletar(produtoValidacao.validarHash(hash)))
-            throw new NoSuchElementException("Produto não encontrado.");
+            throw new NoSuchElementException("Produto não deletado.");
     }
 }

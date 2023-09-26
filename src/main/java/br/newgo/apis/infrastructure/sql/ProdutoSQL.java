@@ -52,4 +52,8 @@ public class ProdutoSQL {
     public String deletar(){
         return "DELETE FROM PRODUTOS WHERE hash = ?";
     }
+
+    public String atualizarStatusLativo() {
+        return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
+    }
 }

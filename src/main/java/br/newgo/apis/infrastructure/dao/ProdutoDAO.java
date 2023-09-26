@@ -125,6 +125,22 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    public boolean atualizarStatusLativo(boolean lativo, UUID hash){
+        try (Connection conexao = ConexaoBancoDados.obterConexao();
+             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.atualizarStatusLativo())) {
+
+            stmt.setBoolean(1, lativo);
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setObject(3, hash);
+
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);
+        }
+    }
+
     /**
      * Deleta um produto do banco de dados com base em seu hash.
      *

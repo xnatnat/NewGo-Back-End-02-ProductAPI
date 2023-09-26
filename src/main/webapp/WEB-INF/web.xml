@@ -23,4 +23,15 @@
         <servlet-name>ProdutoInfoController</servlet-name>
         <url-pattern>/api/v1/produtos/*</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProdutoStatusController</servlet-name>
+        <servlet-class>br.newgo.apis.presentation.controller.ProdutoStatusController</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ProdutoStatusController</servlet-name>
+        <url-pattern>/api/v1/produtos/status/*</url-pattern>
+    </servlet-mapping>
+<!--    TODO alterar para produtos/*/status (alterar extrairHash em request) -->
 </web-app>

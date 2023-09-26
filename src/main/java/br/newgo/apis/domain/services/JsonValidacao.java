@@ -23,10 +23,19 @@ public class JsonValidacao {
      */
     public void validarJson(String json) {
         JsonObject produtoJson = parseJson(json);
-        verificarCamposObrigatorios(produtoJson);
-        verificarCamposNaoPermitidos(produtoJson);
+        verificarCamposObrigatorios(produtoJson, CAMPOS_OBRIGATORIOS);
+        verificarCamposNaoPermitidos(produtoJson, CAMPOS_OBRIGATORIOS);
         verificarValoresEmpty(produtoJson);
     }
+
+    public Boolean validarJsonStatusERetornarValor(String json){
+        JsonObject produtoJson = parseJson(json);
+        verificarCamposObrigatorios(produtoJson, "lativo");
+        verificarCamposNaoPermitidos(produtoJson, "lativo");
+        verificarValoresEmpty(produtoJson);
+        return produtoJson.get("lativo").getAsBoolean();
+    } //TODO refatorar; validar valor;
+
 
     /**
      * Analisa o JSON fornecido e o converte em um objeto JsonObject.
@@ -49,8 +58,8 @@ public class JsonValidacao {
      * @param produtoJson O JsonObject a ser verificado.
      * @throws IllegalArgumentException Se campos obrigatórios estiverem ausentes.
      */
-    private void verificarCamposObrigatorios(JsonObject produtoJson) {
-        for (String campo : CAMPOS_OBRIGATORIOS) {
+    private void verificarCamposObrigatorios(JsonObject produtoJson, String... camposObrigatorios) {
+        for (String campo : camposObrigatorios) {
             if (!produtoJson.has(campo)) {
                 throw new IllegalArgumentException("JSON inválido. O campo obrigatório '" + campo + "' está ausente.");
             }
@@ -63,9 +72,9 @@ public class JsonValidacao {
      * @param produtoJson O JsonObject a ser verificado.
      * @throws IllegalArgumentException Se campos não permitidos estiverem presentes.
      */
-    private void verificarCamposNaoPermitidos(JsonObject produtoJson) {
+    private void verificarCamposNaoPermitidos(JsonObject produtoJson, String... campos) {
         for (String campo : produtoJson.keySet()) {
-            if (!containsIgnoreCase(CAMPOS_OBRIGATORIOS, campo)) {
+            if (!containsIgnoreCase(campos, campo)) {
                 throw new IllegalArgumentException("JSON inválido. O campo '" + campo + "' não é permitido.");
             }
         }
