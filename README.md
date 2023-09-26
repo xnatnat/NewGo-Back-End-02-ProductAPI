@@ -39,7 +39,7 @@ controle de estoque e preço destes produtos.</p>
 - [x]  RN002 - Não permitir cadastrar produtos com nomes duplicados.
 - [x]  RN003 - Não permitir cadastrar produtos com ean13 duplicados.
 - [x]  RN004 - Não permitir cadastrar produtos com preço, quantidade ou estoque_min negativo.
-- [ ]  RN005 - Não permitir alterar as informações de id, hash, nome, ean13, dtcreate,
+- [x]  RN005 - Não permitir alterar as informações de id, hash, nome, ean13, dtcreate,
   dtupdate pelo usuário
 - [x]  RN006 - Um novo produto deve ser cadastrado somente com os campos nome,
   descrição, ean13, preço, quantidade e estoque mínimo.
@@ -48,11 +48,11 @@ controle de estoque e preço destes produtos.</p>
 - [x]  RN008 - Nome não pode ser nulo nem vazio.
 - [x]  RN009 - dtcreate deve ser preenchido com a timestamp atual, dtupdate preenchido
   com nulo e lativo com falso.
-- [ ]  RN010 - Será permitido alterar o campo lativo pelo usuário somente na funcionalidade
+- [x]  RN010 - Será permitido alterar o campo lativo pelo usuário somente na funcionalidade
   específica para tal.
-- [ ]  RN011 - Sempre que atualizar alguma informação do produto seja através de qualquer
+- [x]  RN011 - Sempre que atualizar alguma informação do produto seja através de qualquer
   funcionalidade, atualizar dtupdate com o timestamp atual.
-- [ ]  RN012 - Não permitir atualizar informações de um produto inativo exceto para caso de
+- [x]  RN012 - Não permitir atualizar informações de um produto inativo exceto para caso de
   reativação.
 - [x]  RN013 - A API Rest deve receber como parâmetro do usuário somente o UUID para
   fins de interação com os produtos.
