@@ -64,7 +64,7 @@ public class ProdutoController extends HttpServlet {
         if(lativoParam == null)
             ResponseUtils.escreverJson(resp, new Gson().toJson(produtoService.obterTodos()));
 
-        else if(lativoParam.equalsIgnoreCase("true"))
+        else if(lativoParam.equalsIgnoreCase("true") || lativoParam.equalsIgnoreCase("false"))
             ResponseUtils.escreverJson(resp, new Gson().toJson(produtoService.obterTodosPorStatus(lativoParam)));
 
         else
