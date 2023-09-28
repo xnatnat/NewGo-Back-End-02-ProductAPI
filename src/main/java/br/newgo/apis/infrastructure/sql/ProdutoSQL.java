@@ -29,11 +29,11 @@ public class ProdutoSQL {
     /**
     * Gera uma consulta SQL para buscar produtos no banco de dados com base em um critério específico.
     *
-    * @param criterio O critério de busca que deve ser usado na consulta SQL.
     * @return Uma string contendo a consulta SQL para buscar produtos com base no critério fornecido.
     */
-    public String buscarPor(){
+    public String buscarPor() {
         return "SELECT * FROM PRODUTOS WHERE ? = ?";
+    }
 
     public String atualizarStatusLativo() {
         return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
@@ -50,16 +50,6 @@ public class ProdutoSQL {
      */
     public String buscarTodos(){
         return "SELECT * FROM PRODUTOS";
-    }
-    
-    /**
-    * Gera uma consulta SQL para buscar todos os produtos com base em seu status (ativo ou inativo).
-    *
-    * @param ativo Indica se os produtos buscados devem estar ativos (true) ou inativos (false).
-    * @return Uma string contendo a consulta SQL para buscar produtos com base no status fornecido.
-    */
-    public String buscarTodosPorStatus(){
-        return "SELECT * FROM PRODUTOS WHERE lativo = ?";
     }
     
     /**
