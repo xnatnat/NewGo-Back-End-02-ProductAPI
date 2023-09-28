@@ -14,8 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  * Controlador servlet para informações de produtos.
  *
  * Esta classe implementa um servlet que lida com requisições HTTP para obter informações, atualizar e deletar produtos.
- * Ela recebe solicitações GET, PUT e DELETE para realizar operações em produtos e responde com os resultados
- * correspondentes.
+ * Ela recebe solicitações GET, PUT e DELETE para realizar operações em produtos e responde com os resultados correspondentes.
  */
 public class ProdutoInfoController extends HttpServlet {
     private ProdutoService produtoService;
@@ -36,7 +35,7 @@ public class ProdutoInfoController extends HttpServlet {
 
     /**
      * Lida com solicitações HTTP GET para obter informações de um produto.
-     * <p>
+     *
      * Este método recebe uma solicitação GET para obter informações detalhadas de um produto com base em seu
      * identificador único (hash). Ele responde com os dados do produto em formato JSON.
      *
@@ -51,12 +50,21 @@ public class ProdutoInfoController extends HttpServlet {
             ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHash(RequestUtils.extrairHash(req)).toJson());
 
         else if(lativoParam.equalsIgnoreCase("true"))
-            ResponseUtils.escreverJson(resp, produtoService.obterDtoPorHashSeProdutoAtivo(RequestUtils.extrairHash(req)).toJson());
+            ResponseUtils.escreverJson(resp, produtoService.obterDtoAtivoPorHash(RequestUtils.extrairHash(req)).toJson());
 
         else
             throw new IllegalArgumentException("Valor do parametro inválido.");
     }
 
+    /**
+     * Lida com solicitações HTTP PUT para atualizar um produto.
+     *
+     * Este método recebe uma solicitação PUT para atualizar um produto com base em seu identificador único (hash).
+     * Ele responde com os dados atualizados do produto em formato JSON.
+     *
+     * @param req  O objeto HttpServletRequest que contém a solicitação HTTP.
+     * @param resp O objeto HttpServletResponse usado para enviar a resposta HTTP.
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         ResponseUtils.escreverJson(resp,

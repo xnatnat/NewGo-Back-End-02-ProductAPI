@@ -2,6 +2,7 @@ package br.newgo.apis.presentation.controller;
 
 import br.newgo.apis.domain.services.ProdutoService;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
+import br.newgo.apis.infrastructure.utils.ProdutoMapeador;
 import br.newgo.apis.infrastructure.utils.RequestUtils;
 import br.newgo.apis.infrastructure.utils.ResponseUtils;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
@@ -11,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Esta classe representa um controlador para operações relacionadas a produtos em um servlet.
@@ -34,26 +36,26 @@ public class ProdutoController extends HttpServlet {
     }
 
     /**
-     * Manipula solicitações HTTP POST para criar um novo produto.
-     * @param req O objeto HttpServletRequest que representa a solicitação.
+     * Manipula solicitações HTTP POST para criar produtos.
+     *
+     * @param req  O objeto HttpServletRequest que representa a solicitação.
      * @param resp O objeto HttpServletResponse que representa a resposta.
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp){
 
-        ProdutoDTO produtoDTO = produtoService.criar(RequestUtils.lerCorpoDaRequisicao(req));
-
-        String uri = req.getRequestURL().toString() + "/" + produtoDTO.getHash();
-
+        List<ProdutoDTO> produtos = produtoService.criar(RequestUtils.lerCorpoDaRequisicao(req));
         resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.setHeader("Location", uri);
+        resp.setHeader("Location",
+                RequestUtils.gerarLocationHeader(req, produtos));
 
-        ResponseUtils.escreverJson(resp, produtoDTO.toJson());
+        ResponseUtils.escreverJson(resp, ProdutoMapeador.mapearParaJson(produtos));
     }
 
     /**
-     * Manipula solicitações HTTP GET para obter todos os produtos.
-     * @param req O objeto HttpServletRequest que representa a solicitação.
+     * Manipula solicitações HTTP GET para obter todos os produtos ou produtos por status.
+     *
+     * @param req  O objeto HttpServletRequest que representa a solicitação.
      * @param resp O objeto HttpServletResponse que representa a resposta.
      */
     @Override

@@ -51,5 +51,4 @@ public class ProdutoStatusController extends HttpServlet {
         produtoService.atualizarStatusLativo(RequestUtils.extrairHash(req), RequestUtils.lerCorpoDaRequisicao(req));
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
-
 }
