@@ -46,16 +46,6 @@ public class ProdutoDTO {
         return gson.toJson(this);
     }
 
-    /**
-     * Converte uma string JSON em um objeto ProdutoDTO.
-     * @param json A string JSON a ser convertida.
-     * @return Um objeto ProdutoDTO criado a partir da string JSON.
-     */
-    public static ProdutoDTO fromJson(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, ProdutoDTO.class);
-    }
-
     public UUID getHash() {
         return hash;
     }
