@@ -26,13 +26,8 @@ public class ProdutoSQL {
         return "SELECT COUNT(*) FROM PRODUTOS WHERE nome = ? OR ean13 = ?";
     }
 
-    /**
-     * Retorna uma consulta SQL para buscar um produto com base no hash na tabela de produtos.
-     *
-     * @return Uma string contendo a consulta SQL de busca por hash.
-     */
-    public String buscarPorHash(){
-        return "SELECT * FROM PRODUTOS WHERE hash = ?";
+    public String buscarPor(){
+        return "SELECT * FROM PRODUTOS WHERE ? = ?";
     }
 
     /**
@@ -42,10 +37,6 @@ public class ProdutoSQL {
      */
     public String buscarTodos(){
         return "SELECT * FROM PRODUTOS";
-    }
-
-    public String buscarTodosPorStatus(){
-        return "SELECT * FROM PRODUTOS WHERE lativo = ?";
     }
 
     /**

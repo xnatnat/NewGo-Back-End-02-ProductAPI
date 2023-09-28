@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Esta classe representa um DAO (Data Access Object) para a entidade Produto.
+ * Classe responsável por interagir com o banco de dados para operações relacionadas à entidade Produto.
  */
 public class ProdutoDAO {
     ProdutoSQL produtoSQL;
@@ -28,8 +28,7 @@ public class ProdutoDAO {
      * @throws RuntimeException Se ocorrer um erro ao salvar o produto ou ao obter o hash gerado.
      */
     public String salvar(Produto produto) {
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.inserir(), Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.inserir(), Statement.RETURN_GENERATED_KEYS)) {
 
             setDadosDoProdutoParaInsercao(produto, stmt);
             int linhasAfetadas = stmt.executeUpdate();
@@ -42,9 +41,9 @@ public class ProdutoDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar o produto: " + e.getMessage(), e);
+            throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);
         }
-        return "";
+        throw new RuntimeException("Nenhuma linha foi alterada.");
     }
 
     /**
@@ -56,8 +55,7 @@ public class ProdutoDAO {
      * @throws RuntimeException Se ocorrer um erro durante a execução da consulta no banco de dados.
      */
     public boolean existeProdutoComNomeOuEan13(String nome, String ean13) {
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.existeProdutoComNomeOuEan13())) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.existeProdutoComNomeOuEan13())) {
 
             stmt.setString(1, nome);
             stmt.setString(2, ean13);
@@ -66,14 +64,14 @@ public class ProdutoDAO {
                 if (resultSet.next()) {
                     int count = resultSet.getInt(1);
                     return count > 0;
-                } else
-                    return false;
+                }
             } catch (SQLException e) {
                 throw new RuntimeException("Erro ao executar a consulta: " + e.getMessage(), e);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);
         }
+        return false;
     }
 
     /**
@@ -84,17 +82,15 @@ public class ProdutoDAO {
      * @throws RuntimeException Se ocorrer um erro ao executar a consulta SQL ou ao obter a conexão com o banco de dados.
      */
     public Produto buscarPorHash(UUID hash) {
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarPorHash())) {
-
-            stmt.setObject(1, hash);
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor())) {
+            stmt.setString(1, "hash");
+            stmt.setObject(2, hash);
 
             try (ResultSet resultado = stmt.executeQuery()) {
-                if (resultado.next()) {
+                if (resultado.next())
                     return criarProduto(resultado);
-                } else {
+                else
                     return null;
-                }
             } catch (SQLException e) {
                 throw new RuntimeException("Erro ao executar a consulta: " + e.getMessage(), e);
             }
@@ -112,8 +108,7 @@ public class ProdutoDAO {
     public List<Produto> buscarTodos() {
         List<Produto> produtos = new ArrayList<>();
 
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarTodos())) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarTodos())) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     produtos.add(criarProduto(rs));
@@ -125,12 +120,19 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    /**
+     * Busca todos os produtos no banco de dados com base no status "lativo".
+     *
+     * @param lativo O status a ser considerado na busca.
+     * @return Uma lista de objetos Produto representando os produtos encontrados.
+     * @throws RuntimeException Se ocorrer um erro ao buscar os produtos no banco de dados.
+     */
     public List<Produto> buscarTodosPorStatus(boolean lativo) {
         List<Produto> produtos = new ArrayList<>();
 
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarTodosPorStatus())) {
-            stmt.setBoolean(1, lativo);
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor())) {
+            stmt.setString(1, "lativo");
+            stmt.setBoolean(2, lativo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     produtos.add(criarProduto(rs));
@@ -142,14 +144,20 @@ public class ProdutoDAO {
         return produtos;
     }
 
+    /**
+     * Atualiza o status "lativo" de um produto no banco de dados.
+     *
+     * @param lativo O novo status "lativo" do produto.
+     * @param hash   O UUID do produto a ser atualizado.
+     * @return True se a atualização foi bem-sucedida, False caso contrário.
+     * @throws RuntimeException Se ocorrer um erro ao obter a conexão com o banco de dados.
+     */
     public boolean atualizarStatusLativo(boolean lativo, UUID hash){
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.atualizarStatusLativo())) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarStatusLativo())) {
 
             stmt.setBoolean(1, lativo);
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setObject(3, hash);
-
 
             return stmt.executeUpdate() > 0;
 
@@ -158,9 +166,14 @@ public class ProdutoDAO {
         }
     }
 
+    /**
+     * Atualiza os dados de um produto no banco de dados.
+     *
+     * @param produto O objeto Produto com os novos dados.
+     * @throws RuntimeException Se ocorrer um erro ao obter a conexão com o banco de dados ou ao executar a atualização.
+     */
     public void atualizar(Produto produto){
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.atualizar())) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizar())) {
             setDadosDoProdutoParaAtualizacao(produto, stmt);
             if (stmt.executeUpdate() == 0) {
                 throw new RuntimeException("A operação de atualizar o produto falhou. Nenhuma linha foi afetada.");
@@ -171,15 +184,14 @@ public class ProdutoDAO {
     }
 
     /**
-     *  Deleta um produto do banco de dados com base em seu hash.
+     * Deleta um produto do banco de dados com base em seu hash.
      *
      * @param hash O UUID do produto a ser deletado.
      * @return true se o produto foi deletado com sucesso, false caso contrário.
      * @throws RuntimeException Se ocorrer um erro durante a operação de exclusão.
      */
     public boolean deletar(UUID hash) {
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.deletar())) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.deletar())) {
             stmt.setObject(1, hash);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -189,8 +201,9 @@ public class ProdutoDAO {
 
     /**
      * Configura os parâmetros do PreparedStatement para inserir um Produto no banco de dados.
+     *
      * @param produto O objeto Produto a ser inserido.
-     * @param stmt O PreparedStatement a ser configurado.
+     * @param stmt    O PreparedStatement a ser configurado.
      * @throws SQLException Se ocorrer um erro ao configurar os parâmetros.
      */
     private void setDadosDoProdutoParaInsercao(Produto produto, PreparedStatement stmt) throws SQLException {
@@ -205,6 +218,13 @@ public class ProdutoDAO {
         stmt.setBoolean(9, false);
     }
 
+    /**
+     * Configura os parâmetros do PreparedStatement para atualizar um Produto no banco de dados.
+     *
+     * @param produto O objeto Produto com os novos dados.
+     * @param stmt    O PreparedStatement a ser configurado.
+     * @throws SQLException Se ocorrer um erro ao configurar os parâmetros.
+     */
     private void setDadosDoProdutoParaAtualizacao(Produto produto, PreparedStatement stmt) throws SQLException {
         stmt.setString(1, produto.getDescricao());
         stmt.setDouble(2, produto.getPreco());
