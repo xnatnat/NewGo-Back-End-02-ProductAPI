@@ -1,6 +1,5 @@
 package br.newgo.apis.infrastructure.config;
 
-
 import br.newgo.apis.infrastructure.ConexaoBancoDados;
 
 import java.io.IOException;
