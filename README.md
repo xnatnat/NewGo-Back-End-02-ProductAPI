@@ -30,8 +30,23 @@ controle de estoque e preço destes produtos.</p>
   dtcreate: timestamp  
   dtupdate: timestamp  
   lativo: boolean
-- [ ] US002 - Criar recurso que permite criar, alterar, consultar e remover produtos.  
+- [x] US002 - Criar recurso que permite criar, alterar, consultar e remover produtos.  
   “Toda a estrutura de persistência e consulta -> endpoints, servlets, db”
+- [x] US003 - Criar recurso para ativar ou desativar um produto.
+- [x] US004 - Criar recurso para consultar somente produtos ativos.  
+  • Uma consulta para retornar todos os produtos ativos.  
+  • Outra consulta para retornar um produto e somente caso ele esteja ativo.  
+- [x] US005 - Criar recurso para consultar somente produtos inativos.  
+  • Consulta deverá retornar todos os produtos inativos
+- [x] US006 - Criar recurso para consultar todos os produtos em quantidade de estoque menor que o
+  estoque mínimo definido.
+- [ ] US007 - Criar recurso que permita cadastrar produtos em lote.
+- [ ] US008 - Criar recurso para atualizar o preço de produtos em lote, por valor fixo, aumentar ou diminuir
+  um valor e aumentar ou diminuir percentualmente.  
+  • Para esta operação, receber Hash do produto, operação a ser realizada e valor.
+- [ ] US009 - Criar recurso que permita atualizar estoque em lote.  
+• Para essa operação, receber Hash do produto e Valor a ser adicionado ou removido do
+  estoque.
 
 <h3>💼 Regras de Negócio</h3>
 
@@ -56,6 +71,23 @@ controle de estoque e preço destes produtos.</p>
   reativação.
 - [x]  RN013 - A API Rest deve receber como parâmetro do usuário somente o UUID para
   fins de interação com os produtos.
+- [x] RN014 - Ativar o produto deve-se atualizar o campo lativo com valor true.
+- [x] RN015 - Desativando o produto deve-se atualizar o campo lativo com valor false.
+- [x] RN016 - Consulta deverá retornar todos os produtos ativos nesta situação.
+- [ ] RN017 - Consulta de produtos com estoque abaixo do mínimo deve considerar somente produtos
+  ativos
+- [x] RN018 - Será permitido alterar o campo lativo pelo usuário somente na funcionalidade específica
+  para tal.
+- [x] RN019 - Sempre que atualizar alguma informação do produto seja através de qualquer
+  funcionalidade, atualizar dtupdate com o timestamp atual.
+- [x] RN020 - Não permitir atualizar informações de um produto inativo exceto para caso de reativação.
+- [x] RN021 - A API Rest deve receber como parâmetro do usuário somente o UUID para fins de interação
+  com os produtos.
+- [ ] RN022 - Para efeito do cadastro de produtos em lote, caso algum deles não atenda às regras de
+  negócio anteriores, cadastrar somente os que estão conforme solicitado, retornando para o usuário quais registros não foram possíveis ser cadastrados bem, como uma mensagem indicando qual
+  informação está incorreta.
+- [x] RN023 - Não permitir que um produto fique com valor negativo.
+
 
 <h3>📋 Requisitos Não Funcionais</h3>
 
@@ -84,8 +116,8 @@ controle de estoque e preço destes produtos.</p>
   • chore: (updating grunt tasks etc; no production code change)
 - [x] RNF011 - Não remover as branches mergeadas para a Main.
 - [x] RNF010 - Criar uma coleção Postman para todos os endpoints.
-- [x] RNF011 – Modelo de nome do projeto no git: NewGo Back-End 02 – [Nome]
-
+- [x] RNF011 - Enviar os valores da requisição no body.
+- [x] RNF012 - Responder as requisições com o resultado da operação no body da resposta
 
 <h2>🛠️ Tecnologias Utilizadas</h2>
 
@@ -96,6 +128,7 @@ controle de estoque e preço destes produtos.</p>
     <li><strong>PostgreSQL</strong></li>
     <li>Postman</li>
 </ul>
+
 
 
 ------------
