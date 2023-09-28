@@ -25,11 +25,24 @@ public class ProdutoSQL {
     public String existeProdutoComNomeOuEan13(){
         return "SELECT COUNT(*) FROM PRODUTOS WHERE nome = ? OR ean13 = ?";
     }
-
+    
+    /**
+    * Gera uma consulta SQL para buscar produtos no banco de dados com base em um critério específico.
+    *
+    * @param criterio O critério de busca que deve ser usado na consulta SQL.
+    * @return Uma string contendo a consulta SQL para buscar produtos com base no critério fornecido.
+    */
     public String buscarPor(){
         return "SELECT * FROM PRODUTOS WHERE ? = ?";
+
+    public String atualizarStatusLativo() {
+        return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
     }
 
+    public String atualizar(){
+        return "UPDATE PRODUTOS SET descricao = ?, preco=?, quantidade=?, estoque_min=?, dtupdate=? WHERE hash = ?";
+    }
+  
     /**
      * Retorna uma consulta SQL para buscar todos os produtos na tabela de produtos.
      *
@@ -38,6 +51,24 @@ public class ProdutoSQL {
     public String buscarTodos(){
         return "SELECT * FROM PRODUTOS";
     }
+    
+    /**
+    * Gera uma consulta SQL para buscar todos os produtos com base em seu status (ativo ou inativo).
+    *
+    * @param ativo Indica se os produtos buscados devem estar ativos (true) ou inativos (false).
+    * @return Uma string contendo a consulta SQL para buscar produtos com base no status fornecido.
+    */
+    public String buscarTodosPorStatus(){
+        return "SELECT * FROM PRODUTOS WHERE lativo = ?";
+    }
+    
+    /**
+    * Gera uma consulta SQL para buscar todos os produtos com estoque abaixo do valor mínimo.
+    *
+    * @return Uma string contendo a consulta SQL para buscar produtos com estoque abaixo do valor mínimo.
+    */
+    public String buscarTodosComEstoqueBaixo() {
+        return "SELECT * FROM PRODUTOS WHERE quantidade < estoque_min";}
 
     /**
      * Retorna uma consulta SQL para deletar um produto da tabela de produtos com base no ID.
@@ -46,13 +77,5 @@ public class ProdutoSQL {
      */
     public String deletar(){
         return "DELETE FROM PRODUTOS WHERE hash = ?";
-    }
-
-    public String atualizarStatusLativo() {
-        return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
-    }
-
-    public String atualizar(){
-        return "UPDATE PRODUTOS SET descricao = ?, preco=?, quantidade=?, estoque_min=?, dtupdate=? WHERE hash = ?";
     }
 }

@@ -7,6 +7,7 @@ import br.newgo.apis.infrastructure.utils.ProdutoMapeador;
 import br.newgo.apis.presentation.dtos.ProdutoDTO;
 import com.google.gson.JsonObject;
 
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -95,6 +96,12 @@ public class ProdutoService {
                 .collect(Collectors.toList());
     }
 
+  public List<ProdutoDTO> obterTodosComEstoqueBaixo(){
+        return produtoDAO.buscarTodosComEstoqueBaixo().stream()
+                .map(ProdutoDTO::new)
+                .collect(Collectors.toList());
+    }
+  
     /**
      * Atualiza o status ativo de um produto com base em um JSON de entrada.
      *
