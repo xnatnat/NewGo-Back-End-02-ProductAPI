@@ -3,36 +3,21 @@ package br.newgo.apis.domain.services;
 import br.newgo.apis.infrastructure.utils.ProdutoAtributos;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public class ValidadorJsonProduto {
-    public Stream<JsonObject> extrairObjetosJson(String json) {
+/**
+ * Classe responsável por validar objetos JSON de produtos.
+ */
+public class JsonProdutoValidador {
 
-        JsonElement jsonProdutos = parseParaJsonElement(json);
-
-        if (jsonProdutos.isJsonArray()) {
-            return StreamSupport.stream(jsonProdutos.getAsJsonArray().spliterator(), false)
-                    .map(JsonElement::getAsJsonObject);
-        }
-
-        if (jsonProdutos.isJsonObject()) {
-            return Stream.of(obterJsonObject(jsonProdutos));
-        }
-        throw new IllegalArgumentException("O JSON não é nem um objeto nem um array.");
-    }
-
-    private JsonElement parseParaJsonElement(String json){
-        return new JsonParser().parse(json);
-    }
-
-    private JsonObject obterJsonObject(JsonElement json){
-        return json.getAsJsonObject();
-    }
-
+    /**
+     * Valida um objeto JSON de produto com base nos atributos especificados.
+     *
+     * @param objetoJson O objeto JSON a ser validado.
+     * @param atributos Os atributos que devem ser considerados na validação.
+     * @throws IllegalArgumentException Se o JSON não atender aos critérios de validação.
+     */
     public void validarObjetoJson(JsonObject objetoJson, ProdutoAtributos atributos) {
         if(atributos != ProdutoAtributos.ATRIBUTOS_ATUALIZAVEIS)
             validarAtributosObrigatorios(objetoJson, atributos);
@@ -40,34 +25,46 @@ public class ValidadorJsonProduto {
         validarValoresVazios(objetoJson);
     }
 
+    /**
+     * Valida os atributos obrigatórios em um objeto JSON de produto.
+     *
+     * @param objetoJson O objeto JSON a ser validado.
+     * @param atributos Os atributos obrigatórios que devem estar presentes.
+     * @throws IllegalArgumentException Se algum atributo obrigatório estiver ausente.
+     */
     private void validarAtributosObrigatorios(JsonObject objetoJson, ProdutoAtributos atributos) {
-        atributos.getAtributos().forEach(atributo -> validarAtributoObrigatorio(objetoJson, atributo));
+        atributos.getAtributos().forEach(atributo -> {
+            if(!objetoJson.has(atributo))
+                throw new IllegalArgumentException("JSON inválido. O atributo obrigatório '" + atributo + "' está ausente.");
+        });
     }
 
-    private void validarAtributoObrigatorio(JsonObject objetoJson, String atributo){
-        if(!objetoJson.has(atributo))
-            throw new IllegalArgumentException("JSON inválido. O atributo obrigatório '" + atributo + "' está ausente.");
-    }
-
+    /**
+     * Valida os atributos permitidos em um objeto JSON de produto.
+     *
+     * @param objetoJson O objeto JSON a ser validado.
+     * @param atributos Os atributos permitidos que não devem ser desconhecidos.
+     * @throws IllegalArgumentException Se algum atributo desconhecido for encontrado.
+     */
     private void validarAtributosPermitidos(JsonObject objetoJson, ProdutoAtributos atributos) {
         List<String> listAtributos = atributos.getAtributos();
-        objetoJson.keySet().forEach(atributo -> validarAtributoPermitido(atributo, listAtributos));
+        objetoJson.keySet().forEach(atributo -> {
+            if(!listAtributos.contains(atributo))
+                throw new IllegalArgumentException("JSON inválido. O atributo '" + atributo + "' não é permitido.");
+        });
     }
 
-    private void validarAtributoPermitido(String atributo, List<String> atributosPermitidos){
-        if(!atributosPermitidos.contains(atributo))
-            throw new IllegalArgumentException("JSON inválido. O atributo '" + atributo + "' não é permitido.");
-    }
-
+    /**
+     * Valida os valores vazios em um objeto JSON de produto.
+     *
+     * @param objetoJson O objeto JSON a ser validado.
+     * @throws IllegalArgumentException Se algum valor de atributo estiver vazio.
+     */
     private void validarValoresVazios(JsonObject objetoJson) {
-        objetoJson.keySet().forEach(atributo -> verificarValorVazio(objetoJson, atributo));
-    }
-
-    private void validarValorVazio(JsonObject objetoJson, String atributo){
-        JsonElement elemento = objetoJson.get(atributo);
-        if (elemento != null && elemento.isJsonPrimitive() && elemento.getAsString().isEmpty()) {
-            throw new IllegalArgumentException("JSON inválido. O valor do atributo '" + atributo + "' está vazio.");
-        }
+        objetoJson.keySet().forEach(atributo -> {
+            JsonElement elemento = objetoJson.get(atributo);
+            if (elemento.isJsonNull() && elemento.isJsonPrimitive() && elemento.getAsString().isEmpty())
+                throw new IllegalArgumentException("JSON inválido. O valor do atributo '" + atributo + "' está vazio.");
+        });
     }
 }
-
