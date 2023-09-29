@@ -31,8 +31,8 @@ public class ProdutoSQL {
     *
     * @return Uma string contendo a consulta SQL para buscar produtos com base no critério fornecido.
     */
-    public String buscarPor() {
-        return "SELECT * FROM PRODUTOS WHERE ? = ?";
+    public String buscarPor(String coluna) {
+        return "SELECT * FROM PRODUTOS WHERE " + coluna + " = ?";
     }
 
     public String atualizarStatusLativo() {

@@ -82,9 +82,8 @@ public class ProdutoDAO {
      * @throws RuntimeException Se ocorrer um erro ao executar a consulta SQL ou ao obter a conexão com o banco de dados.
      */
     public Produto buscarPorHash(UUID hash) {
-        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor())) {
-            stmt.setString(1, "hash");
-            stmt.setObject(2, hash);
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor("hash"))) {
+            stmt.setObject(1, hash);
 
             try (ResultSet resultado = stmt.executeQuery()) {
                 if (resultado.next())
@@ -130,9 +129,8 @@ public class ProdutoDAO {
     public List<Produto> buscarTodosPorStatus(boolean lativo) {
         List<Produto> produtos = new ArrayList<>();
 
-        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor())) {
-            stmt.setString(1, "lativo");
-            stmt.setBoolean(2, lativo);
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor("lativo"))) {
+            stmt.setBoolean(1, lativo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     produtos.add(criarProduto(rs));
