@@ -145,8 +145,7 @@ public class ProdutoDAO {
     public List<Produto> buscarTodosComEstoqueBaixo(){
         List<Produto> produtos = new ArrayList<>();
 
-        try (Connection conexao = ConexaoBancoDados.obterConexao();
-             PreparedStatement stmt = conexao.prepareStatement(produtoSQL.buscarTodosComEstoqueBaixo())) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarTodosComEstoqueBaixo())) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     produtos.add(criarProduto(rs));

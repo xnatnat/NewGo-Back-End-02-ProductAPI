@@ -58,7 +58,7 @@ public class ProdutoSQL {
     * @return Uma string contendo a consulta SQL para buscar produtos com estoque abaixo do valor mínimo.
     */
     public String buscarTodosComEstoqueBaixo() {
-        return "SELECT * FROM PRODUTOS WHERE quantidade < estoque_min";}
+        return "SELECT * FROM PRODUTOS WHERE lativo = true AND quantidade < estoque_min";}
 
     /**
      * Retorna uma consulta SQL para deletar um produto da tabela de produtos com base no ID.
