@@ -1,6 +1,6 @@
 package br.newgo.apis.domain.services;
 
-import br.newgo.apis.infrastructure.utils.ProdutoAtributos;
+import br.newgo.apis.application.utils.ProdutoAtributos;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

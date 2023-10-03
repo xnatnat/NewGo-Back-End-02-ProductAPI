@@ -1,4 +1,4 @@
-package br.newgo.apis.domain.model;
+package br.newgo.apis.infrastructure.entities;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,13 +17,26 @@ public class Produto implements Serializable {
     private String nome;
     private String descricao;
     private String ean13;
-    private Double preco;
-    private Double quantidade;
-    private Double estoqueMin;
+    private double preco;
+    private double quantidade;
+    private double estoqueMin;
 
     private LocalDateTime dtCreate;
     private LocalDateTime dtUpdate;
-    private boolean lativo;
+    private Boolean lativo;
+
+    public Produto(UUID hash, String nome, String descricao, String ean13, double preco, double quantidade, double estoqueMin, LocalDateTime dtCreate, LocalDateTime dtUpdate, Boolean lativo) {
+        setHash(hash);
+        setNome(nome);
+        setDescricao(descricao);
+        setEan13(ean13);
+        setPreco(preco);
+        setQuantidade(quantidade);
+        setEstoqueMin(estoqueMin);
+        setDtCreate(dtCreate);
+        setDtUpdate(dtUpdate);
+        setLativo(lativo);
+    }
 
     public Produto(String nome, String descricao, String ean13, double preco, double quantidade, double estoqueMin) {
         setNome(nome);
@@ -74,27 +87,27 @@ public class Produto implements Serializable {
         this.ean13 = ean13;
     }
 
-    public Double getPreco() {
+    public double getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(double preco) {
         this.preco = preco;
     }
 
-    public Double getQuantidade() {
+    public double getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(Double quantidade) {
+    public void setQuantidade(double quantidade) {
         this.quantidade = quantidade;
     }
 
-    public Double getEstoqueMin() {
+    public double getEstoqueMin() {
         return estoqueMin;
     }
 
-    public void setEstoqueMin(Double estoqueMin) {
+    public void setEstoqueMin(double estoqueMin) {
         this.estoqueMin = estoqueMin;
     }
 
@@ -114,11 +127,11 @@ public class Produto implements Serializable {
         this.dtUpdate = dtUpdate;
     }
 
-    public boolean isLativo() {
+    public Boolean isLativo() {
         return lativo;
     }
 
-    public void setLativo(boolean lativo) {
+    public void setLativo(Boolean lativo) {
         this.lativo = lativo;
     }
 }

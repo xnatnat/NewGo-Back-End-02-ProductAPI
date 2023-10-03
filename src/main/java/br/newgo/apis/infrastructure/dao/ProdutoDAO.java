@@ -1,6 +1,6 @@
 package br.newgo.apis.infrastructure.dao;
 
-import br.newgo.apis.domain.model.Produto;
+import br.newgo.apis.infrastructure.entities.Produto;
 import br.newgo.apis.infrastructure.ConexaoBancoDados;
 import br.newgo.apis.infrastructure.sql.ProdutoSQL;
 
@@ -54,7 +54,7 @@ public class ProdutoDAO {
      * @return True se um produto com o nome ou EAN13 especificado existe no banco de dados, caso contrário, False.
      * @throws RuntimeException Se ocorrer um erro durante a execução da consulta no banco de dados.
      */
-    public boolean existeProdutoComNomeOuEan13(String nome, String ean13) {
+    public Boolean existeProdutoComNomeOuEan13(String nome, String ean13) {
         try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.existeProdutoComNomeOuEan13())) {
 
             stmt.setString(1, nome);
@@ -87,7 +87,7 @@ public class ProdutoDAO {
 
             try (ResultSet resultado = stmt.executeQuery()) {
                 if (resultado.next())
-                    return criarProduto(resultado);
+                    return converterResultSetParaProduto(resultado);
                 else
                     return null;
             } catch (SQLException e) {
@@ -110,7 +110,7 @@ public class ProdutoDAO {
         try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarTodos())) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    produtos.add(criarProduto(rs));
+                    produtos.add(converterResultSetParaProduto(rs));
                 }
             }
         } catch (SQLException e) {
@@ -126,14 +126,14 @@ public class ProdutoDAO {
      * @return Uma lista de objetos Produto representando os produtos encontrados.
      * @throws RuntimeException Se ocorrer um erro ao buscar os produtos no banco de dados.
      */
-    public List<Produto> buscarTodosPorStatus(boolean lativo) {
+    public List<Produto> buscarTodosPorStatus(Boolean lativo) {
         List<Produto> produtos = new ArrayList<>();
 
         try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarPor("lativo"))) {
             stmt.setBoolean(1, lativo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    produtos.add(criarProduto(rs));
+                    produtos.add(converterResultSetParaProduto(rs));
                 }
             }
         } catch (SQLException e) {
@@ -148,7 +148,7 @@ public class ProdutoDAO {
         try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.buscarTodosComEstoqueBaixo())) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    produtos.add(criarProduto(rs));
+                    produtos.add(converterResultSetParaProduto(rs));
                 }
             }
         } catch (SQLException e) {
@@ -156,16 +156,8 @@ public class ProdutoDAO {
         }
         return produtos;
     }
-    
-    /**
-     * Atualiza o status "lativo" de um produto no banco de dados.
-     *
-     * @param lativo O novo status "lativo" do produto.
-     * @param hash   O UUID do produto a ser atualizado.
-     * @return True se a atualização foi bem-sucedida, False caso contrário.
-     * @throws RuntimeException Se ocorrer um erro ao obter a conexão com o banco de dados.
-     */
-      public boolean atualizarStatusLativo(boolean lativo, UUID hash){
+
+    public Boolean atualizarStatusLativo(Boolean lativo, UUID hash){
         try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarStatusLativo())) {
 
             stmt.setBoolean(1, lativo);
@@ -203,7 +195,7 @@ public class ProdutoDAO {
      * @return true se o produto foi deletado com sucesso, false caso contrário.
      * @throws RuntimeException Se ocorrer um erro durante a operação de exclusão.
      */
-    public boolean deletar(UUID hash) {
+    public Boolean deletar(UUID hash) {
         try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.deletar())) {
             stmt.setObject(1, hash);
             return stmt.executeUpdate() > 0;
@@ -248,26 +240,25 @@ public class ProdutoDAO {
     }
 
     /**
-     * Cria um objeto Produto com base nos dados de um ResultSet.
+     * Instancia um objeto Produto com base nos dados de um ResultSet.
      *
      * @param resultado O ResultSet contendo os dados do produto.
      * @return Um objeto Produto preenchido com os dados do ResultSet.
      * @throws SQLException Se ocorrer um erro ao acessar os dados do ResultSet.
      */
-    private Produto criarProduto(ResultSet resultado) throws SQLException {
-        Produto produto = new Produto(
+    private Produto converterResultSetParaProduto(ResultSet resultado) throws SQLException {
+        return new Produto(
+                UUID.fromString(resultado.getString("hash")),
                 resultado.getString("nome"),
                 resultado.getString("descricao"),
                 resultado.getString("ean13"),
                 resultado.getDouble("preco"),
                 resultado.getDouble("quantidade"),
-                resultado.getDouble("estoque_min"));
-        produto.setHash(UUID.fromString(resultado.getString("hash")));
-        produto.setLativo(resultado.getBoolean("lativo"));
-        produto.setDtCreate(resultado.getTimestamp("dtcreate").toLocalDateTime());
-        produto.setDtUpdate(resultado.getTimestamp("dtupdate") != null
-                ? resultado.getTimestamp("dtupdate").toLocalDateTime()
-                : null);
-        return produto;
+                resultado.getDouble("estoque_min"),
+                resultado.getTimestamp("dtcreate").toLocalDateTime(),
+                resultado.getTimestamp("dtupdate") != null
+                        ? resultado.getTimestamp("dtupdate").toLocalDateTime()
+                        : null,
+                resultado.getBoolean("lativo"));
     }
 }
