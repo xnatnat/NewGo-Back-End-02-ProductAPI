@@ -1,4 +1,4 @@
-package br.newgo.apis.infrastructure.utils;
+package br.newgo.apis.application.utils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

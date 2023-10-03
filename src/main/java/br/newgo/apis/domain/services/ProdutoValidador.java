@@ -1,52 +1,29 @@
 package br.newgo.apis.domain.services;
 
+import br.newgo.apis.application.dtos.ProdutoDTO;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import java.util.UUID;
 
-/**
- * Classe responsável por validar objetos JSON de produtos.
- */
 public class ProdutoValidador {
-
     private final ProdutoDAO produtoDAO;
     public ProdutoValidador(ProdutoDAO produtoDAO) {
         this.produtoDAO = produtoDAO;
     }
 
-    /**
-     * Valida um objeto JSON de produto, verificando nome, EAN-13, preço, quantidade e estoque mínimo.
-     *
-     * @param objetoJson O objeto JSON a ser validado.
-     * @throws IllegalArgumentException Se a validação falhar.
-     */
-    public void validarJsonProduto(JsonObject objetoJson) {
-        if(objetoJson.has("nome")) {
-            validarStringNulaOuVazia(objetoJson, "nome");
-            validarStringNulaOuVazia(objetoJson, "ean13");
-            validarNomeOuEan13Duplicado(objetoJson.get("nome").getAsString(), objetoJson.get("ean13").getAsString());
+    public void validarProduto(ProdutoDTO produto) {
+        if(produto.getNome() != null) {
+            validarStringNulaOuVazia(produto.getNome(), "nome");
+            validarStringNulaOuVazia(produto.getEan13(), "ean13");
+            validarNomeOuEan13Duplicado(produto.getNome(), produto.getEan13());
         }
-        if(objetoJson.has("preco"))
-            validarDoubleNuloOuNegativo(objetoJson, "preco");
-        if(objetoJson.has("quantidade"))
-            validarDoubleNuloOuNegativo(objetoJson, "quantidade");
-        if(objetoJson.has("estoqueMin"))
-            validarDoubleNuloOuNegativo(objetoJson, "estoqueMin");
+        validarDoubleNegativo(produto.getPreco(), "preco");
+        validarDoubleNegativo(produto.getQuantidade(), "quantidade");
+        validarDoubleNegativo(produto.getEstoqueMin(), "estoqueMin");
     }
 
-    /**
-     * Valida uma string para garantir que não seja nula ou vazia.
-     *
-     * @param objetoJson O objeto JSON que contém a string a ser validada.
-     * @param atributo   O nome do atributo que contém a string.
-     * @throws IllegalArgumentException Se a string for nula ou vazia.
-     */
-    private void validarStringNulaOuVazia(JsonObject objetoJson, String atributo){
-        JsonElement elemento = objetoJson.get(atributo);
-        if (elemento.isJsonNull() || elemento.getAsString().isEmpty())
+    private void validarStringNulaOuVazia(String valor, String atributo){
+        if (valor == null || valor.isEmpty())
             throw new IllegalArgumentException("O atributo '"+ atributo + "' não pode ser nulo ou vazio.");
     }
 
@@ -63,30 +40,14 @@ public class ProdutoValidador {
         }
     }
 
-    /**
-     * Valida um valor double para garantir que não seja nulo ou negativo.
-     *
-     * @param objetoJson O objeto JSON que contém o valor double a ser validado.
-     * @param atributo   O nome do atributo que contém o valor double.
-     * @throws IllegalArgumentException Se o valor for nulo ou negativo.
-     */
-    private void validarDoubleNuloOuNegativo(JsonObject objetoJson, String atributo) {
-        JsonElement elemento = objetoJson.get(atributo);
-        if (elemento.isJsonNull())
-            objetoJson.add(atributo, new JsonPrimitive(0.0));
-        else if (elemento.getAsDouble() < 0)
+    private void validarDoubleNegativo(double valor, String atributo) {
+        if(valor < 0)
             throw new IllegalArgumentException("O atributo '" + atributo + "' não pode ser negativo.");
     }
 
-    /**
-     * Verifica se o atributo 'lativo' tem valor 'true' ou 'false'.
-     *
-     * @param objetoJson O objeto JSON a ser verificado.
-     * @throws IllegalArgumentException Se o valor do atributo não for 'true' ou 'false'.
-     */
-    public void verificarLativo(JsonObject objetoJson){
-        String lativo = objetoJson.get("lativo").getAsString();
-        if (!(lativo.equalsIgnoreCase("true") || lativo.equalsIgnoreCase("false")))
+    public void verificarLativo(ProdutoDTO produtoDTO){
+        String lativo = produtoDTO.getLativo();
+        if (!(lativo.equalsIgnoreCase("true")||lativo.equalsIgnoreCase("false")))
             throw new IllegalArgumentException("O atributo lativo deve ter valor TRUE ou FALSE");
     }
 
@@ -111,7 +72,7 @@ public class ProdutoValidador {
      * @param lativo O estado de ativação do produto.
      * @throws IllegalStateException Se o produto não estiver ativo.
      */
-    public void validarSeProdutoEstaAtivo(boolean lativo){
+    public void validarSeProdutoEstaAtivo(Boolean lativo){
         if(!lativo)
             throw new IllegalStateException("Produto não está ativo.");
     }

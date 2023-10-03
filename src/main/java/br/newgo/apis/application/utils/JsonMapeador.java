@@ -1,11 +1,13 @@
-package br.newgo.apis.infrastructure.utils;
+package br.newgo.apis.application.utils;
 
+import br.newgo.apis.application.dtos.ProdutoDTO;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.List;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Esta classe fornece métodos para mapear strings JSON em elementos JSON e objetos JSON,
@@ -43,25 +45,23 @@ public class JsonMapeador {
         return mapearParaElementoJson(json).getAsJsonObject();
     }
 
-    /**
-     * Cria um fluxo (Stream) de objetos JSON a partir de uma string JSON que pode conter um array de objetos JSON ou um único objeto JSON.
-     *
-     * @param json A string JSON a ser convertida em um fluxo de objetos JSON.
-     * @return Um fluxo de objetos JSON representando os elementos contidos na string JSON.
-     * @throws IllegalArgumentException Se o JSON não for nem um objeto nem um array.
-     */
-    public static Stream<JsonObject> mapearParaObjetosJson(String json) {
+    public static Stream<JsonObject> mapearParaStreamDeObjetosJson(String json) {
         JsonElement jsonProdutos = mapearParaElementoJson(json);
 
-        if (jsonProdutos.isJsonArray()) {
-            return StreamSupport.stream(jsonProdutos.getAsJsonArray().spliterator(), false)
-                    .map(JsonMapeador::mapearParaObjetoJson);
-        }
+        if (jsonProdutos.isJsonArray())
+            return jsonProdutos.getAsJsonArray()
+                    .asList()
+                    .stream()
+                    .map(JsonElement::getAsJsonObject);
 
-        if (jsonProdutos.isJsonObject()) {
-            return Stream.of(mapearParaObjetoJson(jsonProdutos));
-        }
+        throw new IllegalArgumentException("Não foi possível obter JSON de produtos em lote");
+    }
 
-        throw new IllegalArgumentException("O JSON não é nem um objeto nem um array.");
+    public static String mapearParaJson(ProdutoDTO produtoDTO){
+        return new Gson().toJson(produtoDTO);
+    }
+
+    public static String mapearParaJson(List<ProdutoDTO> produtoDTO){
+        return new Gson().toJson(produtoDTO);
     }
 }

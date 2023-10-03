@@ -1,22 +1,16 @@
 package br.newgo.apis.domain.services;
 
-import br.newgo.apis.domain.model.Produto;
+import br.newgo.apis.infrastructure.entities.Produto;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
-import br.newgo.apis.infrastructure.utils.ProdutoAtributos;
-import br.newgo.apis.infrastructure.utils.ProdutoMapeador;
-import br.newgo.apis.presentation.dtos.ProdutoDTO;
-import com.google.gson.JsonObject;
-
+import br.newgo.apis.application.utils.ProdutoAtributos;
+import br.newgo.apis.application.dtos.ProdutoDTO;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static br.newgo.apis.infrastructure.utils.JsonMapeador.mapearParaObjetoJson;
-import static br.newgo.apis.infrastructure.utils.JsonMapeador.mapearParaObjetosJson;
-import static br.newgo.apis.infrastructure.utils.ProdutoAtributos.*;
-import static br.newgo.apis.infrastructure.utils.ProdutoMapeador.mapearParaDTO;
-import static br.newgo.apis.infrastructure.utils.ProdutoMapeador.mapearParaProduto;
+import static br.newgo.apis.application.utils.ProdutoAtributos.*;
+import static br.newgo.apis.application.utils.ProdutoMapeador.*;
 
 /**
  * Classe que fornece serviços relacionados a produtos.
@@ -24,25 +18,19 @@ import static br.newgo.apis.infrastructure.utils.ProdutoMapeador.mapearParaProdu
 public class ProdutoService {
     private final ProdutoDAO produtoDAO;
     private final ProdutoValidador produtoValidador;
-    private final ProdutoMapeador produtoMapeador;
-    private final JsonProdutoValidador jsonProdutoValidador;
 
     public ProdutoService(ProdutoDAO produtoDAO){
         this.produtoDAO = produtoDAO;
         this.produtoValidador = new ProdutoValidador(produtoDAO);
-        this.produtoMapeador = new ProdutoMapeador();
-        this.jsonProdutoValidador = new JsonProdutoValidador();
     }
 
-    /**
-     * Cria novos produtos com base em um JSON de entrada.
-     *
-     * @param jsonInserido O JSON contendo informações dos produtos a serem criados.
-     * @return Uma lista de objetos ProdutoDTO representando os produtos criados.
-     */
-    public List<ProdutoDTO> criar(String jsonInserido) {
-        return mapearParaObjetosJson(jsonInserido)
-                .peek(objetoJson -> processarJsonProduto(objetoJson, ATRIBUTOS_OBRIGATORIOS))
+    public ProdutoDTO criar(ProdutoDTO produtoDTO) {
+        validarProdutoDTO(produtoDTO, ATRIBUTOS_OBRIGATORIOS);
+        return salvarEObterDto(produtoDTO);
+    }
+
+    public List<ProdutoDTO> criarLote(List<ProdutoDTO> produtos){
+        return produtos.stream().peek(produto -> validarProdutoDTO(produto, ATRIBUTOS_OBRIGATORIOS))
                 .map(this::salvarEObterDto)
                 .collect(Collectors.toList());
     }
@@ -66,7 +54,7 @@ public class ProdutoService {
      */
     public ProdutoDTO obterDtoAtivoPorHash(String hash){
         ProdutoDTO produto = obterDtoPorHash(hash);
-        produtoValidador.validarSeProdutoEstaAtivo(produto.isLativo());
+        produtoValidador.validarSeProdutoEstaAtivo(Boolean.parseBoolean(produto.getLativo()));
 
         return produto;
     }
@@ -77,62 +65,37 @@ public class ProdutoService {
      * @return Uma lista de objetos ProdutoDTO representando todos os produtos.
      */
     public List<ProdutoDTO> obterTodos(){
-        return produtoDAO.buscarTodos().stream()
-                .map(ProdutoDTO::new)
-                .collect(Collectors.toList());
+        return mapearParaListaDeDTOS(produtoDAO.buscarTodos());
     }
 
     /**
      * Obtém uma lista de todos os produtos com base no status (ativo/inativo) fornecido.
      *
-     * @param lativoParam O status (true para ativo, false para inativo) dos produtos a serem obtidos.
+     * @param status O status (true para ativo, false para inativo) dos produtos a serem obtidos.
      * @return Uma lista de objetos ProdutoDTO representando os produtos com o status especificado.
      */
-    public List<ProdutoDTO> obterTodosPorStatus(String lativoParam) {
-        return produtoDAO.buscarTodosPorStatus(
-                Boolean.parseBoolean(lativoParam))
-                .stream()
-                .map(ProdutoDTO::new)
-                .collect(Collectors.toList());
+    public List<ProdutoDTO> obterTodosPorStatus(String status) {
+        return mapearParaListaDeDTOS(
+                produtoDAO.buscarTodosPorStatus(
+                            Boolean.parseBoolean(status)));
     }
 
-  public List<ProdutoDTO> obterTodosComEstoqueBaixo(){
-        return produtoDAO.buscarTodosComEstoqueBaixo().stream()
-                .map(ProdutoDTO::new)
-                .collect(Collectors.toList());
-    }
-  
-    /**
-     * Atualiza o status ativo de um produto com base em um JSON de entrada.
-     *
-     * @param hash O hash do produto a ser atualizado.
-     * @param jsonInserido O JSON contendo o novo status.
-     */
-    public void atualizarStatusLativo(String hash, String jsonInserido){
-        JsonObject objetoJson = mapearParaObjetoJson(jsonInserido);
-
-        processarJsonProduto(objetoJson, ATRIBUTO_STATUS);
-
-        produtoDAO.atualizarStatusLativo(objetoJson.get("lativo").getAsBoolean(), obterPorHash(hash).getHash());
+    public List<ProdutoDTO> obterTodosComEstoqueBaixo(){
+        return mapearParaListaDeDTOS(produtoDAO.buscarTodosComEstoqueBaixo());
     }
 
-    /**
-     * Atualiza informações de um produto com base em um JSON de entrada.
-     *
-     * @param hash O hash do produto a ser atualizado.
-     * @param jsonInserido O JSON contendo as novas informações.
-     * @return Um objeto ProdutoDTO representando o produto atualizado.
-     * @throws NoSuchElementException Se o produto não estiver ativo.
-     */
-    public ProdutoDTO atualizar(String hash, String jsonInserido){
-        JsonObject objetoJson = mapearParaObjetoJson(jsonInserido);
+    public ProdutoDTO atualizarStatusLativo(String hash, ProdutoDTO produtoDTO){
+        validarProdutoDTO(produtoDTO, ATRIBUTO_STATUS);
+        if(!produtoDAO.atualizarStatusLativo(Boolean.parseBoolean(produtoDTO.getLativo()), obterPorHash(hash).getHash()))
+            throw new NoSuchElementException("Status não atualizado.");
+        return mapearParaDTO(obterPorHash(hash));
+    }
 
-        processarJsonProduto(objetoJson, ATRIBUTOS_ATUALIZAVEIS);
+    public ProdutoDTO atualizar(String hash, ProdutoDTO produtoDTO){
         Produto produto = obterPorHash(hash);
-
         produtoValidador.validarSeProdutoEstaAtivo(produto.isLativo());
-
-        atualizarInformacoesProduto(produto, objetoJson);
+        validarProdutoDTO(produtoDTO, ATRIBUTOS_ATUALIZAVEIS);
+        atualizarInformacoesProduto(produto, produtoDTO);
         produtoDAO.atualizar(produto);
 
         return mapearParaDTO(obterPorHash(hash));
@@ -149,30 +112,18 @@ public class ProdutoService {
             throw new NoSuchElementException("Produto não deletado.");
     }
 
-    /**
-     * Salva um objeto JSON como um novo produto e retorna o correspondente ProdutoDTO.
-     *
-     * @param jsonObject O objeto JSON a ser convertido e salvo como um novo produto.
-     * @return Um objeto ProdutoDTO representando o produto recém-criado.
-     */
-    private ProdutoDTO salvarEObterDto(JsonObject jsonObject){
+    private ProdutoDTO salvarEObterDto(ProdutoDTO produtoDTO){
         return obterDtoPorHash(
                 produtoDAO.salvar(
                         mapearParaProduto(
-                                jsonObject)));
+                                produtoDTO)));
     }
 
-    /**
-     * Processa um objeto JSON de produto de acordo com os atributos especificados.
-     *
-     * @param objetoJson O objeto JSON a ser processado.
-     * @param atributos Os atributos a serem considerados na validação.
-     */
-    private void processarJsonProduto(JsonObject objetoJson, ProdutoAtributos atributos) {
-        jsonProdutoValidador.validarObjetoJson(objetoJson, atributos);
+    private void validarProdutoDTO(ProdutoDTO produtoDTO, ProdutoAtributos atributos) {
         if(atributos == ATRIBUTO_STATUS)
-            produtoValidador.verificarLativo(objetoJson);
-        produtoValidador.validarJsonProduto(objetoJson);
+            produtoValidador.verificarLativo(produtoDTO);
+        else
+            produtoValidador.validarProduto(produtoDTO);
     }
 
     /**
@@ -191,23 +142,17 @@ public class ProdutoService {
         return produto;
     }
 
-    /**
-     * Atualiza as informações de um produto com base em um objeto JSON de entrada.
-     *
-     * @param produto O produto a ser atualizado.
-     * @param jsonObject O objeto JSON contendo as novas informações.
-     */
-    private void atualizarInformacoesProduto(Produto produto, JsonObject jsonObject) {
-        if(jsonObject.has("descricao"))
-            produto.setDescricao(jsonObject.get("descricao").getAsString());
+    private void atualizarInformacoesProduto(Produto produto, ProdutoDTO produtoDTO) {
+        if(produtoDTO.getDescricao() != null && !produtoDTO.getDescricao().equals(produto.getDescricao()))
+            produto.setDescricao(produtoDTO.getDescricao());
 
-        if(jsonObject.has("preco"))
-            produto.setPreco(jsonObject.get("preco").getAsDouble());
+        if(produtoDTO.getPreco() != 0 && produtoDTO.getPreco() != produto.getPreco())
+            produto.setPreco(produtoDTO.getPreco());
 
-        if(jsonObject.has("quantidade"))
-            produto.setQuantidade(jsonObject.get("quantidade").getAsDouble());
+        if(produtoDTO.getQuantidade() != 0 && produtoDTO.getQuantidade() != produto.getQuantidade())
+            produto.setQuantidade(produtoDTO.getQuantidade());
 
-        if(jsonObject.has("estoqueMin"))
-            produto.setEstoqueMin(jsonObject.get("estoqueMin").getAsDouble());
+        if(produtoDTO.getEstoqueMin() != 0 && produtoDTO.getEstoqueMin() != produto.getEstoqueMin())
+            produto.setEstoqueMin(produtoDTO.getEstoqueMin());
     }
 }
