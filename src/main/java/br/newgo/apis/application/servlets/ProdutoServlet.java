@@ -2,7 +2,8 @@ package br.newgo.apis.application.servlets;
 
 import br.newgo.apis.application.controller.ProdutoController;
 import br.newgo.apis.application.dtos.ProdutoDTO;
-import br.newgo.apis.application.utils.ProdutoMapeador;
+import br.newgo.apis.application.dtos.RespostaDTO;
+import br.newgo.apis.application.utils.JsonMapeador;
 import br.newgo.apis.application.utils.RequestUtils;
 import br.newgo.apis.application.utils.ResponseUtils;
 
@@ -43,10 +44,10 @@ public class ProdutoServlet extends HttpServlet {
         else if(pathInfo == null || pathInfo.equals("/"))
             jsonResposta = mapearParaJson(produtoController.obterTodos());
 
-        else if(pathInfo.equalsIgnoreCase("/ativos"))
+        else if(pathInfo.equalsIgnoreCase("/ativos") || pathInfo.equalsIgnoreCase("/ativos/"))
             jsonResposta = mapearParaJson(produtoController.obterTodosPorStatus("true"));
 
-        else if(pathInfo.equalsIgnoreCase("/inativos"))
+        else if(pathInfo.equalsIgnoreCase("/inativos") || pathInfo.equalsIgnoreCase("/inativos/"))
             jsonResposta = mapearParaJson(produtoController.obterTodosPorStatus("false"));
 
         else {
@@ -65,20 +66,20 @@ public class ProdutoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         String pathInfo = req.getPathInfo();
         String jsonRequisicao = RequestUtils.lerCorpoDaRequisicao(req);
-        List<ProdutoDTO> produtos = new ArrayList<>();
+
+        List<RespostaDTO<Object>> respostaDTOS = new ArrayList<>();
 
         if(pathInfo == null || pathInfo.equals("/"))
-            produtos.add(produtoController.criar(jsonRequisicao));
-
-        else if(pathInfo.equalsIgnoreCase("/lote"))
-            produtos = produtoController.criarLote(jsonRequisicao);
+            respostaDTOS.add(produtoController.criar(jsonRequisicao));
+        else if(pathInfo.equalsIgnoreCase("/lote") || pathInfo.equalsIgnoreCase("/lote/"))
+            respostaDTOS = produtoController.criarLote(jsonRequisicao);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
         resp.setHeader("Location",
-                RequestUtils.gerarLocationHeader(req, produtos));
+                RequestUtils.gerarLocationHeader(req, respostaDTOS));
 
         ResponseUtils.escreverJson(resp,
-                ProdutoMapeador.mapearParaJson(produtos));
+                JsonMapeador.mapearListaParaJson(respostaDTOS));
     }
 
     @Override

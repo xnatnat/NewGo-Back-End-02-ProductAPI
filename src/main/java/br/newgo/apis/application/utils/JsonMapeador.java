@@ -1,13 +1,14 @@
 package br.newgo.apis.application.utils;
 
 import br.newgo.apis.application.dtos.ProdutoDTO;
+import br.newgo.apis.application.dtos.RespostaDTO;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Esta classe fornece métodos para mapear strings JSON em elementos JSON e objetos JSON,
@@ -45,16 +46,21 @@ public class JsonMapeador {
         return mapearParaElementoJson(json).getAsJsonObject();
     }
 
-    public static Stream<JsonObject> mapearParaStreamDeObjetosJson(String json) {
+    public static List<JsonObject> mapearParaListaDeObjetosJson(String json) {
         JsonElement jsonProdutos = mapearParaElementoJson(json);
 
         if (jsonProdutos.isJsonArray())
             return jsonProdutos.getAsJsonArray()
                     .asList()
                     .stream()
-                    .map(JsonElement::getAsJsonObject);
+                    .map(JsonElement::getAsJsonObject)
+                    .collect(Collectors.toList());
 
         throw new IllegalArgumentException("Não foi possível obter JSON de produtos em lote");
+    }
+
+    public static String mapearListaParaJson(List<RespostaDTO<Object>> respostas){
+        return new Gson().toJson(respostas);
     }
 
     public static String mapearParaJson(ProdutoDTO produtoDTO){
