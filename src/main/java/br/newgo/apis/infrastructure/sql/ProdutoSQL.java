@@ -35,8 +35,8 @@ public class ProdutoSQL {
         return "SELECT * FROM PRODUTOS WHERE " + coluna + " = ?";
     }
 
-    public String atualizarStatusLativo() {
-        return "UPDATE PRODUTOS SET lativo = ?, dtupdate=? WHERE hash = ?";
+    public String atualizarCampo(String campo) {
+        return "UPDATE PRODUTOS SET " + campo + " = ?, dtupdate=? WHERE hash = ?";
     }
 
     public String atualizar(){

@@ -1,5 +1,6 @@
 package br.newgo.apis.domain.services;
 
+import br.newgo.apis.application.dtos.PrecoLoteDTO;
 import br.newgo.apis.infrastructure.entities.Produto;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.application.utils.ProdutoAtributos;
@@ -7,7 +8,6 @@ import br.newgo.apis.application.dtos.ProdutoDTO;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import static br.newgo.apis.application.utils.ProdutoAtributos.*;
 import static br.newgo.apis.application.utils.ProdutoMapeador.*;
@@ -25,14 +25,8 @@ public class ProdutoService {
     }
 
     public ProdutoDTO criar(ProdutoDTO produtoDTO) {
-        validarProdutoDTO(produtoDTO, ATRIBUTOS_OBRIGATORIOS);
+        validarProdutoDTO(produtoDTO, ATRIBUTOS_OBRIGATORIOS_SALVAR);
         return salvarEObterDto(produtoDTO);
-    }
-
-    public List<ProdutoDTO> criarLote(List<ProdutoDTO> produtos){
-        return produtos.stream().peek(produto -> validarProdutoDTO(produto, ATRIBUTOS_OBRIGATORIOS))
-                .map(this::salvarEObterDto)
-                .collect(Collectors.toList());
     }
 
     /**
@@ -86,8 +80,7 @@ public class ProdutoService {
 
     public ProdutoDTO atualizarStatusLativo(String hash, ProdutoDTO produtoDTO){
         validarProdutoDTO(produtoDTO, ATRIBUTO_STATUS);
-        if(!produtoDAO.atualizarStatusLativo(Boolean.parseBoolean(produtoDTO.getLativo()), obterPorHash(hash).getHash()))
-            throw new NoSuchElementException("Status não atualizado.");
+        produtoDAO.atualizarStatusLativo(Boolean.valueOf(produtoDTO.getLativo()), obterPorHash(hash).getHash());
         return mapearParaDTO(obterPorHash(hash));
     }
 
@@ -99,6 +92,17 @@ public class ProdutoService {
         produtoDAO.atualizar(produto);
 
         return mapearParaDTO(obterPorHash(hash));
+    }
+
+    public ProdutoDTO atualizarPrecoEmLote(PrecoLoteDTO precoLoteDTO){
+        Produto produto = obterPorHash(precoLoteDTO.getHash());
+        produtoValidador.validarSeProdutoEstaAtivo(produto.isLativo());
+        produtoValidador.validarDoubleNegativo(precoLoteDTO.getValor(), "valor");
+        atualizarPrecoEmProduto(produto, precoLoteDTO.getOperacao(), precoLoteDTO.getValor());
+        produtoDAO.atualizarPreco(produto);
+
+        return mapearParaDTO(obterPorHash(produto.getHash().toString()));
+
     }
 
     /**
@@ -154,5 +158,25 @@ public class ProdutoService {
 
         if(produtoDTO.getEstoqueMin() != 0 && produtoDTO.getEstoqueMin() != produto.getEstoqueMin())
             produto.setEstoqueMin(produtoDTO.getEstoqueMin());
+    }
+
+    private void atualizarPrecoEmProduto(Produto produto, String operacao, double valor){
+        double novoPreco = 0;
+
+        if(operacao.equalsIgnoreCase("fixo"))
+            novoPreco = valor;
+        else if (operacao.equalsIgnoreCase("aumentar-valor"))
+            novoPreco = produto.getPreco() + valor;
+        else if (operacao.equalsIgnoreCase("diminuir-valor"))
+            novoPreco = produto.getPreco() - valor;
+        else if (operacao.equalsIgnoreCase("aumentar-percentualmente"))
+            novoPreco = produto.getPreco() + (produto.getPreco() * (valor/100));
+        else if (operacao.equalsIgnoreCase("diminuir-percentualmente"))
+            novoPreco = produto.getPreco() - (produto.getPreco() * (valor/100));
+        else
+            throw new IllegalArgumentException("A operação '" + operacao + "' é inválida!");
+
+        produtoValidador.validarDoubleNegativo(novoPreco, "novo preço");
+        produto.setPreco(novoPreco);
     }
 }

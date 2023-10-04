@@ -22,6 +22,11 @@ public class ProdutoValidador {
         validarDoubleNegativo(produto.getEstoqueMin(), "estoqueMin");
     }
 
+    public void validarDoubleNegativo(double valor, String atributo) {
+        if(valor < 0)
+            throw new IllegalArgumentException("O atributo '" + atributo + "' não pode ser negativo.");
+    }
+
     private void validarStringNulaOuVazia(String valor, String atributo){
         if (valor == null || valor.isEmpty())
             throw new IllegalArgumentException("O atributo '"+ atributo + "' não pode ser nulo ou vazio.");
@@ -38,11 +43,6 @@ public class ProdutoValidador {
         if (produtoDAO.existeProdutoComNomeOuEan13(nome, ean13)) {
             throw new IllegalArgumentException("Já existe um produto com o mesmo nome ou EAN-13.");
         }
-    }
-
-    private void validarDoubleNegativo(double valor, String atributo) {
-        if(valor < 0)
-            throw new IllegalArgumentException("O atributo '" + atributo + "' não pode ser negativo.");
     }
 
     public void verificarLativo(ProdutoDTO produtoDTO){

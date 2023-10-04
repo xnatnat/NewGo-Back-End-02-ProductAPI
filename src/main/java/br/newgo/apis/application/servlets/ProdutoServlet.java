@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.newgo.apis.application.utils.JsonMapeador.mapearListaParaJson;
 import static br.newgo.apis.application.utils.JsonMapeador.mapearParaJson;
 
 public class ProdutoServlet extends HttpServlet {
@@ -79,23 +80,26 @@ public class ProdutoServlet extends HttpServlet {
                 RequestUtils.gerarLocationHeader(req, respostaDTOS));
 
         ResponseUtils.escreverJson(resp,
-                JsonMapeador.mapearListaParaJson(respostaDTOS));
+                mapearListaParaJson(respostaDTOS));
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         String[] pathParts = req.getPathInfo().split("/");
         String jsonRequisicao = RequestUtils.lerCorpoDaRequisicao(req);
-        ProdutoDTO produtoDTO = null;
 
-        if(pathParts.length == 2)
-            produtoDTO = produtoController.atualizar(pathParts[1], jsonRequisicao);
+        List<RespostaDTO<Object>> respostaDTOS = new ArrayList<>();
+
+        if(pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-preco-lote"))
+            respostaDTOS = produtoController.atualizarPrecoLote(jsonRequisicao);
+        else if(pathParts.length == 2)
+            respostaDTOS.add(produtoController.atualizar(pathParts[1], jsonRequisicao));
 
         else if (pathParts.length == 3 && pathParts[2].equalsIgnoreCase("status"))
-            produtoDTO = produtoController.atualizarStatus(pathParts[1], jsonRequisicao);
+            respostaDTOS.add(produtoController.atualizarStatus(pathParts[1], jsonRequisicao));
 
         ResponseUtils.escreverJson(resp,
-                mapearParaJson(produtoDTO));
+                mapearListaParaJson(respostaDTOS));
 
     }
 
