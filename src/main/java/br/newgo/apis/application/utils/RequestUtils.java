@@ -1,6 +1,7 @@
 package br.newgo.apis.application.utils;
 
 import br.newgo.apis.application.dtos.ProdutoDTO;
+import br.newgo.apis.application.dtos.RespostaDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -29,18 +30,14 @@ public class RequestUtils {
         }
     }
 
-    /**
-     * Gera um cabeçalho "Location" contendo URLs para recursos criados.
-     *
-     * @param req      O HttpServletRequest que representa a requisição atual.
-     * @param produtos Uma lista de objetos ProdutoDTO para os quais URLs devem ser geradas.
-     * @return Uma string contendo o cabeçalho "Location" com as URLs dos recursos criados.
-     */
-    public static String gerarLocationHeader(HttpServletRequest req, List<ProdutoDTO> produtos) {
+    public static String gerarLocationHeader(HttpServletRequest req, List<RespostaDTO<Object>> respostas) {
         String requestUrl = req.getRequestURL().toString() + "/";
-        List<String> uris = produtos.stream()
-                .map(produto -> requestUrl + produto.getHash())
+
+        List<String> uris = respostas.stream()
+                .filter(resposta -> resposta.getDado() instanceof ProdutoDTO)
+                .map(resposta -> requestUrl + ((ProdutoDTO) resposta.getDado()).getHash())
                 .collect(Collectors.toList());
+
         return String.join(",", uris);
     }
 

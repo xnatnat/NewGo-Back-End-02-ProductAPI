@@ -1,5 +1,6 @@
 package br.newgo.apis.application.controller;
 
+import br.newgo.apis.application.dtos.RespostaDTO;
 import br.newgo.apis.application.utils.ProdutoMapeador;
 import br.newgo.apis.domain.services.JsonProdutoValidador;
 import br.newgo.apis.domain.services.ProdutoService;
@@ -7,11 +8,10 @@ import br.newgo.apis.infrastructure.dao.ProdutoDAO;
 import br.newgo.apis.application.dtos.ProdutoDTO;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static br.newgo.apis.application.utils.JsonMapeador.mapearParaObjetoJson;
-import static br.newgo.apis.application.utils.JsonMapeador.mapearParaStreamDeObjetosJson;
+import static br.newgo.apis.application.utils.JsonMapeador.*;
 import static br.newgo.apis.application.utils.ProdutoAtributos.*;
 
 public class ProdutoController{
@@ -23,18 +23,24 @@ public class ProdutoController{
         jsonProdutoValidador = new JsonProdutoValidador();
     }
 
-    public ProdutoDTO criar(String jsonRequisicao) {
-        JsonObject objetoJson = mapearParaObjetoJson(jsonRequisicao);
-        jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTOS_OBRIGATORIOS);
-
-        return produtoService.criar(ProdutoMapeador.mapearParaDTO(objetoJson));
+    public RespostaDTO<Object> criar(String jsonRequisicao) {
+        ProdutoDTO produtoDTO = salvarProduto(mapearParaObjetoJson(jsonRequisicao));
+        return new RespostaDTO<Object>("Sucesso", "Produto cadastrado com sucesso.", produtoDTO);
     }
 
-    public List<ProdutoDTO> criarLote(String jsonRequisicao) {
-        return produtoService.criarLote(mapearParaStreamDeObjetosJson(jsonRequisicao)
-                                .peek(objetoJson -> jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTOS_OBRIGATORIOS))
-                                .map(ProdutoMapeador::mapearParaDTO)
-                                .collect(Collectors.toList()));
+    public List<RespostaDTO<Object>> criarLote(String jsonRequisicao) {
+        List<RespostaDTO<Object>> respostasDTO  = new ArrayList<>();
+
+        for(JsonObject objetoJson: mapearParaListaDeObjetosJson(jsonRequisicao)){
+            try{
+                ProdutoDTO produtoDTO =  salvarProduto(objetoJson);
+                addRespostaSucesso(produtoDTO, "Produto cadastrado com sucesso.", respostasDTO);
+
+            }catch (IllegalArgumentException e){
+                addRespostaErro(objetoJson, e.getMessage(), respostasDTO);
+            }
+        }
+        return respostasDTO;
     }
 
     public List<ProdutoDTO> obterTodos() {
@@ -73,5 +79,18 @@ public class ProdutoController{
 
     public void deletar(String hash) {
         produtoService.deletar(hash);
+    }
+
+    private ProdutoDTO salvarProduto(JsonObject objetoJson){
+        jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTOS_OBRIGATORIOS);
+        return produtoService.criar(ProdutoMapeador.mapearParaDTO(objetoJson));
+    }
+
+    private void addRespostaSucesso(ProdutoDTO produtoDTO, String mensagem, List<RespostaDTO<Object>> respostasDTO){
+        respostasDTO.add(new RespostaDTO<Object>("Sucesso",mensagem, produtoDTO));
+    }
+
+    private void addRespostaErro(JsonObject objetoJson, String mensagem, List<RespostaDTO<Object>> respostasDTO){
+        respostasDTO.add(new RespostaDTO<Object>("Erro", mensagem, objetoJson));
     }
 }
