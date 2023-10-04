@@ -157,14 +157,30 @@ public class ProdutoDAO {
         return produtos;
     }
 
-    public Boolean atualizarStatusLativo(Boolean lativo, UUID hash){
-        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarStatusLativo())) {
+    public void atualizarStatusLativo(Boolean lativo, UUID hash){
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarCampo("lativo"))) {
 
             stmt.setBoolean(1, lativo);
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setObject(3, hash);
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() == 0)
+                throw new RuntimeException("A operação de atualizar o produto falhou. Nenhuma linha foi afetada.");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);
+        }
+    }
+
+    public void atualizarPreco(Produto produto) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarCampo("preco"))) {
+            stmt.setDouble(1, produto.getPreco());
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setObject(3, produto.getHash());
+
+            if (stmt.executeUpdate() == 0) {
+                throw new RuntimeException("A operação de atualizar o produto falhou. Nenhuma linha foi afetada.");
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao obter a conexão com o banco de dados: " + e.getMessage(), e);

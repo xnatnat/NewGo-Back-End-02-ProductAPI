@@ -1,5 +1,6 @@
 package br.newgo.apis.application.utils;
 
+import br.newgo.apis.application.dtos.PrecoLoteDTO;
 import br.newgo.apis.infrastructure.entities.Produto;
 import br.newgo.apis.application.dtos.ProdutoDTO;
 import com.google.gson.Gson;
@@ -34,8 +35,8 @@ public class ProdutoMapeador {
         );
     }
 
-    public static ProdutoDTO mapearParaDTO(JsonObject jsonObject){
-        return new Gson().fromJson(jsonObject, ProdutoDTO.class);
+    public static ProdutoDTO mapearParaDTO(JsonObject objetoJson){
+        return new Gson().fromJson(objetoJson, ProdutoDTO.class);
     }
 
     public static Produto mapearParaProduto(ProdutoDTO produtoDTO){
@@ -48,16 +49,9 @@ public class ProdutoMapeador {
                 produtoDTO.getEstoqueMin());
     }
 
-    /**
-     * Converte uma lista de objetos ProdutoDTO em uma representação JSON.
-     *
-     * @param produtoDTOS A lista de objetos ProdutoDTO a ser convertida em JSON.
-     * @return Uma string JSON representando a lista de objetos ProdutoDTO fornecida.
-     */
-    public static String mapearParaJson(List<ProdutoDTO> produtoDTOS){
-        return new Gson().toJson(produtoDTOS);
+    public static PrecoLoteDTO mapearParaPrecoLoteDTO(JsonObject objetoJson){
+        return new Gson().fromJson(objetoJson, PrecoLoteDTO.class);
     }
-
     public static List<ProdutoDTO> mapearParaListaDeDTOS(List<Produto> produtos){
         return produtos.stream()
                 .map(ProdutoMapeador::mapearParaDTO)
