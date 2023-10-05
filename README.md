@@ -120,7 +120,7 @@ controle de estoque e preço destes produtos.</p>
 - [x] RNF012 - Responder as requisições com o resultado da operação no body da resposta
 
 <h2>📬 Acesso ao Postman</h2>
-[Postman Workspace](https://www.postman.com/xnatnat/workspace/newgo/overview)
+[Postman Workspace](https://www.postman.com/xnatnat/workspace/newgo/overview "Postman Workspace")
 
 
 <h2>🛠️ Tecnologias Utilizadas</h2>
