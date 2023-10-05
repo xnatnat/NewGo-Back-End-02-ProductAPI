@@ -11,15 +11,17 @@ public class ProdutoValidador {
         this.produtoDAO = produtoDAO;
     }
 
-    public void validarProduto(ProdutoDTO produto) {
-        if(produto.getNome() != null) {
-            validarStringNulaOuVazia(produto.getNome(), "nome");
-            validarStringNulaOuVazia(produto.getEan13(), "ean13");
-            validarNomeOuEan13Duplicado(produto.getNome(), produto.getEan13());
-        }
+    public void validarAtributosDoubleEmProdutoDTO(ProdutoDTO produto) {
         validarDoubleNegativo(produto.getPreco(), "preco");
         validarDoubleNegativo(produto.getQuantidade(), "quantidade");
         validarDoubleNegativo(produto.getEstoqueMin(), "estoqueMin");
+    }
+
+    public void validarAtributosCriarProduto(ProdutoDTO produto){
+        validarStringNulaOuVazia(produto.getNome(), "nome");
+        validarStringNulaOuVazia(produto.getEan13(), "ean13");
+        validarNomeOuEan13Duplicado(produto.getNome(), produto.getEan13());
+        validarAtributosDoubleEmProdutoDTO(produto);
     }
 
     public void validarDoubleNegativo(double valor, String atributo) {

@@ -3,13 +3,11 @@ package br.newgo.apis.domain.services;
 import br.newgo.apis.application.dtos.AtualizacaoLoteProdutoDTO;
 import br.newgo.apis.infrastructure.entities.Produto;
 import br.newgo.apis.infrastructure.dao.ProdutoDAO;
-import br.newgo.apis.application.utils.ProdutoAtributos;
 import br.newgo.apis.application.dtos.ProdutoDTO;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static br.newgo.apis.application.utils.ProdutoAtributos.*;
 import static br.newgo.apis.application.utils.ProdutoMapeador.*;
 
 /**
@@ -25,7 +23,7 @@ public class ProdutoService {
     }
 
     public ProdutoDTO criar(ProdutoDTO produtoDTO) {
-        validarProdutoDTO(produtoDTO, ATRIBUTOS_OBRIGATORIOS_SALVAR);
+        produtoValidador.validarAtributosCriarProduto(produtoDTO);
         return salvarEObterDto(produtoDTO);
     }
 
@@ -79,7 +77,7 @@ public class ProdutoService {
     }
 
     public ProdutoDTO atualizarStatusLativo(String hash, ProdutoDTO produtoDTO){
-        validarProdutoDTO(produtoDTO, ATRIBUTO_STATUS);
+        produtoValidador.verificarLativo(produtoDTO);
         produtoDAO.atualizarStatusLativo(Boolean.valueOf(produtoDTO.getLativo()), obterPorHash(hash).getHash());
 
         return mapearParaDTO(obterPorHash(hash));
@@ -89,7 +87,7 @@ public class ProdutoService {
         Produto produto = obterPorHash(hash);
 
         produtoValidador.validarSeProdutoEstaAtivo(produto.isLativo());
-        validarProdutoDTO(produtoDTO, ATRIBUTOS_ATUALIZAVEIS);
+        produtoValidador.validarAtributosDoubleEmProdutoDTO(produtoDTO);
 
         atualizarInformacoesProduto(produto, produtoDTO);
 
@@ -144,13 +142,6 @@ public class ProdutoService {
                 produtoDAO.salvar(
                         mapearParaProduto(
                                 produtoDTO)));
-    }
-
-    private void validarProdutoDTO(ProdutoDTO produtoDTO, ProdutoAtributos atributos) {
-        if(atributos == ATRIBUTO_STATUS)
-            produtoValidador.verificarLativo(produtoDTO);
-        else
-            produtoValidador.validarProduto(produtoDTO);
     }
 
     /**
