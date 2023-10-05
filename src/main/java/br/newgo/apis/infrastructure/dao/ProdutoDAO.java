@@ -158,7 +158,7 @@ public class ProdutoDAO {
     }
 
     public void atualizarStatusLativo(Boolean lativo, UUID hash){
-        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarCampo("lativo"))) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarAtributo("lativo"))) {
 
             stmt.setBoolean(1, lativo);
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
@@ -172,11 +172,12 @@ public class ProdutoDAO {
         }
     }
 
-    public void atualizarPreco(Produto produto) {
-        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarCampo("preco"))) {
-            stmt.setDouble(1, produto.getPreco());
+    public void atualizarAtributoDouble(String atributo, double valor, UUID hash) {
+        try (PreparedStatement stmt = ConexaoBancoDados.obterConexao().prepareStatement(produtoSQL.atualizarAtributo(atributo))) {
+
+            stmt.setDouble(1, valor);
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-            stmt.setObject(3, produto.getHash());
+            stmt.setObject(3, hash);
 
             if (stmt.executeUpdate() == 0) {
                 throw new RuntimeException("A operação de atualizar o produto falhou. Nenhuma linha foi afetada.");

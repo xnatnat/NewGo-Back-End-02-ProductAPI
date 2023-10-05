@@ -1,11 +1,11 @@
 package br.newgo.apis.application.dtos;
 
-public class PrecoLoteDTO {
+public class AtualizacaoLoteProdutoDTO {
     private String hash;
     private String operacao;
     private double valor;
 
-    public PrecoLoteDTO(String hash, String operacao, double valor) {
+    public AtualizacaoLoteProdutoDTO(String hash, String operacao, double valor) {
         this.hash = hash;
         this.operacao = operacao;
         this.valor = valor;

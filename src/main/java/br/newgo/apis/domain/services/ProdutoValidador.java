@@ -27,6 +27,11 @@ public class ProdutoValidador {
             throw new IllegalArgumentException("O atributo '" + atributo + "' não pode ser negativo.");
     }
 
+    public void validarDoubleZero(double valor, String atributo) {
+        if(valor == 0)
+            throw new IllegalArgumentException("O atributo '" + atributo + "' tem valor 0.");
+    }
+
     private void validarStringNulaOuVazia(String valor, String atributo){
         if (valor == null || valor.isEmpty())
             throw new IllegalArgumentException("O atributo '"+ atributo + "' não pode ser nulo ou vazio.");
