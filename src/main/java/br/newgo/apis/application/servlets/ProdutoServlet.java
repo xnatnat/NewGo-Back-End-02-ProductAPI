@@ -1,9 +1,7 @@
 package br.newgo.apis.application.servlets;
 
 import br.newgo.apis.application.controller.ProdutoController;
-import br.newgo.apis.application.dtos.ProdutoDTO;
 import br.newgo.apis.application.dtos.RespostaDTO;
-import br.newgo.apis.application.utils.JsonMapeador;
 import br.newgo.apis.application.utils.RequestUtils;
 import br.newgo.apis.application.utils.ResponseUtils;
 
@@ -92,6 +90,10 @@ public class ProdutoServlet extends HttpServlet {
 
         if(pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-preco-lote"))
             respostaDTOS = produtoController.atualizarPrecoLote(jsonRequisicao);
+
+        else if(pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-estoque-lote"))
+            respostaDTOS = produtoController.atualizarEstoqueLote(jsonRequisicao);
+
         else if(pathParts.length == 2)
             respostaDTOS.add(produtoController.atualizar(pathParts[1], jsonRequisicao));
 

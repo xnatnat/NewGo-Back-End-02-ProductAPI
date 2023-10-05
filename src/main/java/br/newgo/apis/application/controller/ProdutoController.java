@@ -13,7 +13,7 @@ import java.util.List;
 
 import static br.newgo.apis.application.utils.JsonMapeador.*;
 import static br.newgo.apis.application.utils.ProdutoAtributos.*;
-import static br.newgo.apis.application.utils.ProdutoMapeador.mapearParaPrecoLoteDTO;
+import static br.newgo.apis.application.utils.ProdutoMapeador.mapearParaAtualizacaoLoteDTO;
 
 public class ProdutoController{
     private final ProdutoService produtoService;
@@ -36,7 +36,6 @@ public class ProdutoController{
             try{
                 ProdutoDTO produtoDTO =  salvarProduto(objetoJson);
                 addRespostaSucesso(produtoDTO, "Produto cadastrado com sucesso.", respostasDTO);
-
             }catch (IllegalArgumentException e){
                 addRespostaErro(objetoJson, e.getMessage(), respostasDTO);
             }
@@ -66,14 +65,19 @@ public class ProdutoController{
 
     public RespostaDTO<Object> atualizar(String hash, String jsonRequisicao) {
         JsonObject objetoJson = mapearParaObjetoJson(jsonRequisicao);
+
         jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTOS_ATUALIZAVEIS);
+
         ProdutoDTO produtoDTO = produtoService.atualizar(hash, ProdutoMapeador.mapearParaDTO(objetoJson));
+
         return new RespostaDTO<Object>("Sucesso", "Produto atualizado com sucesso.", produtoDTO);
     }
 
     public RespostaDTO<Object> atualizarStatus(String hash, String jsonRequisicao) {
         JsonObject objetoJson = mapearParaObjetoJson(jsonRequisicao);
+
         jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTO_STATUS);
+
         ProdutoDTO produtoDTO = produtoService.atualizarStatusLativo(hash, ProdutoMapeador.mapearParaDTO(objetoJson));
 
         return new RespostaDTO<Object>("Sucesso", "Produto atualizado com sucesso.", produtoDTO);
@@ -81,12 +85,31 @@ public class ProdutoController{
 
     public List<RespostaDTO<Object>> atualizarPrecoLote(String jsonRequisicao) {
         List<RespostaDTO<Object>> respostasDTO = new ArrayList<>();
+
         for (JsonObject objetoJson : mapearParaListaDeObjetosJson(jsonRequisicao)) {
             try {
                 jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTOS_OBRIGATORIOS_ATUALIZAR_PRECO_LOTE);
-                ProdutoDTO produtoDTO = produtoService.atualizarPrecoEmLote(mapearParaPrecoLoteDTO(objetoJson));
-                addRespostaSucesso(produtoDTO, "Preço atualizado com sucesso.", respostasDTO);
 
+                ProdutoDTO produtoDTO = produtoService.atualizarPrecoEmLote(mapearParaAtualizacaoLoteDTO(objetoJson));
+
+                addRespostaSucesso(produtoDTO, "Preço atualizado com sucesso.", respostasDTO);
+            }catch (IllegalArgumentException | IllegalStateException e){
+                addRespostaErro(objetoJson, e.getMessage(), respostasDTO);
+            }
+        }
+        return respostasDTO;
+    }
+
+    public List<RespostaDTO<Object>> atualizarEstoqueLote(String jsonRequisicao) {
+        List<RespostaDTO<Object>> respostasDTO = new ArrayList<>();
+
+        for (JsonObject objetoJson : mapearParaListaDeObjetosJson(jsonRequisicao)) {
+            try {
+                jsonProdutoValidador.validarObjetoJson(objetoJson, ATRIBUTOS_OBRIGATORIOS_ATUALIZAR_ESTOQUE_LOTE);
+
+                ProdutoDTO produtoDTO = produtoService.atualizarEstoqueEmLote(mapearParaAtualizacaoLoteDTO(objetoJson));
+
+                addRespostaSucesso(produtoDTO, "Estoque atualizado com sucesso.", respostasDTO);
             }catch (IllegalArgumentException | IllegalStateException e){
                 addRespostaErro(objetoJson, e.getMessage(), respostasDTO);
             }

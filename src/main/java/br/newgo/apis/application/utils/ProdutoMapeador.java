@@ -1,6 +1,6 @@
 package br.newgo.apis.application.utils;
 
-import br.newgo.apis.application.dtos.PrecoLoteDTO;
+import br.newgo.apis.application.dtos.AtualizacaoLoteProdutoDTO;
 import br.newgo.apis.infrastructure.entities.Produto;
 import br.newgo.apis.application.dtos.ProdutoDTO;
 import com.google.gson.Gson;
@@ -49,8 +49,8 @@ public class ProdutoMapeador {
                 produtoDTO.getEstoqueMin());
     }
 
-    public static PrecoLoteDTO mapearParaPrecoLoteDTO(JsonObject objetoJson){
-        return new Gson().fromJson(objetoJson, PrecoLoteDTO.class);
+    public static AtualizacaoLoteProdutoDTO mapearParaAtualizacaoLoteDTO(JsonObject objetoJson){
+        return new Gson().fromJson(objetoJson, AtualizacaoLoteProdutoDTO.class);
     }
     public static List<ProdutoDTO> mapearParaListaDeDTOS(List<Produto> produtos){
         return produtos.stream()
