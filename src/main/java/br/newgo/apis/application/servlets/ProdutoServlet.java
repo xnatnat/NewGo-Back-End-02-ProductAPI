@@ -33,76 +33,89 @@ public class ProdutoServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp){
-        String pathInfo = req.getPathInfo();
-        String jsonResposta = "";
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            String pathInfo = req.getPathInfo();
+            String jsonResposta = "";
 
-        if(req.getParameter("estoque-baixo") != null)
-            jsonResposta = mapearParaJson(produtoController.obterTodosComEstoqueBaixo());
+            if (req.getParameter("estoque-baixo") != null)
+                jsonResposta = mapearParaJson(produtoController.obterTodosComEstoqueBaixo());
 
-        else if(pathInfo == null || pathInfo.equals("/"))
-            jsonResposta = mapearParaJson(produtoController.obterTodos());
+            else if (pathInfo == null || pathInfo.equals("/"))
+                jsonResposta = mapearParaJson(produtoController.obterTodos());
 
-        else if(pathInfo.equalsIgnoreCase("/ativos") || pathInfo.equalsIgnoreCase("/ativos/"))
-            jsonResposta = mapearParaJson(produtoController.obterTodosPorStatus("true"));
+            else if (pathInfo.equalsIgnoreCase("/ativos") || pathInfo.equalsIgnoreCase("/ativos/"))
+                jsonResposta = mapearParaJson(produtoController.obterTodosPorStatus("true"));
 
-        else if(pathInfo.equalsIgnoreCase("/inativos") || pathInfo.equalsIgnoreCase("/inativos/"))
-            jsonResposta = mapearParaJson(produtoController.obterTodosPorStatus("false"));
+            else if (pathInfo.equalsIgnoreCase("/inativos") || pathInfo.equalsIgnoreCase("/inativos/"))
+                jsonResposta = mapearParaJson(produtoController.obterTodosPorStatus("false"));
 
-        else {
-            String[] pathParts = pathInfo.split("/");
+            else {
+                String[] pathParts = pathInfo.split("/");
 
-            if(pathParts.length == 3 && pathParts[2].equalsIgnoreCase("ativo"))
-                jsonResposta = mapearParaJson(produtoController.obterDtoAtivoPorHash(pathParts[1]));
+                if (pathParts.length == 3 && pathParts[2].equalsIgnoreCase("ativo"))
+                    jsonResposta = mapearParaJson(produtoController.obterDtoAtivoPorHash(pathParts[1]));
 
-            else if (pathParts.length == 2)
-                jsonResposta = mapearParaJson(produtoController.obterDtoPorHash(pathParts[1]));
+                else if (pathParts.length == 2)
+                    jsonResposta = mapearParaJson(produtoController.obterDtoPorHash(pathParts[1]));
+            }
+            ResponseUtils.escreverJson(resp, jsonResposta);
+        } catch (IllegalArgumentException | IllegalStateException e){
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            ResponseUtils.escreverJson(resp, e.getMessage());
         }
-        ResponseUtils.escreverJson(resp, jsonResposta);
     }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        String pathInfo = req.getPathInfo();
-        String jsonRequisicao = RequestUtils.lerCorpoDaRequisicao(req);
+        try {
+            String pathInfo = req.getPathInfo();
+            String jsonRequisicao = RequestUtils.lerCorpoDaRequisicao(req);
 
-        List<RespostaDTO<Object>> respostaDTOS = new ArrayList<>();
+            List<RespostaDTO<Object>> respostaDTOS = new ArrayList<>();
 
-        if(pathInfo == null || pathInfo.equals("/"))
-            respostaDTOS.add(produtoController.criar(jsonRequisicao));
-        else if(pathInfo.equalsIgnoreCase("/lote") || pathInfo.equalsIgnoreCase("/lote/"))
-            respostaDTOS = produtoController.criarLote(jsonRequisicao);
+            if (pathInfo == null || pathInfo.equals("/"))
+                respostaDTOS.add(produtoController.criar(jsonRequisicao));
+            else if (pathInfo.equalsIgnoreCase("/lote") || pathInfo.equalsIgnoreCase("/lote/"))
+                respostaDTOS = produtoController.criarLote(jsonRequisicao);
 
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.setHeader("Location",
-                RequestUtils.gerarLocationHeader(req, respostaDTOS));
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.setHeader("Location",
+                    RequestUtils.gerarLocationHeader(req, respostaDTOS));
 
-        ResponseUtils.escreverJson(resp,
-                mapearListaParaJson(respostaDTOS));
+            ResponseUtils.escreverJson(resp,
+                    mapearListaParaJson(respostaDTOS));
+        } catch (IllegalArgumentException | IllegalStateException e){
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            ResponseUtils.escreverJson(resp, e.getMessage());
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
-        String[] pathParts = req.getPathInfo().split("/");
-        String jsonRequisicao = RequestUtils.lerCorpoDaRequisicao(req);
+        try {
+            String[] pathParts = req.getPathInfo().split("/");
+            String jsonRequisicao = RequestUtils.lerCorpoDaRequisicao(req);
 
-        List<RespostaDTO<Object>> respostaDTOS = new ArrayList<>();
+            List<RespostaDTO<Object>> respostaDTOS = new ArrayList<>();
 
-        if(pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-preco-lote"))
-            respostaDTOS = produtoController.atualizarPrecoLote(jsonRequisicao);
+            if (pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-preco-lote"))
+                respostaDTOS = produtoController.atualizarPrecoLote(jsonRequisicao);
 
-        else if(pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-estoque-lote"))
-            respostaDTOS = produtoController.atualizarEstoqueLote(jsonRequisicao);
+            else if (pathParts.length == 2 && pathParts[1].equalsIgnoreCase("atualizar-estoque-lote"))
+                respostaDTOS = produtoController.atualizarEstoqueLote(jsonRequisicao);
 
-        else if(pathParts.length == 2)
-            respostaDTOS.add(produtoController.atualizar(pathParts[1], jsonRequisicao));
+            else if (pathParts.length == 2)
+                respostaDTOS.add(produtoController.atualizar(pathParts[1], jsonRequisicao));
 
-        else if (pathParts.length == 3 && pathParts[2].equalsIgnoreCase("status"))
-            respostaDTOS.add(produtoController.atualizarStatus(pathParts[1], jsonRequisicao));
+            else if (pathParts.length == 3 && pathParts[2].equalsIgnoreCase("status"))
+                respostaDTOS.add(produtoController.atualizarStatus(pathParts[1], jsonRequisicao));
 
-        ResponseUtils.escreverJson(resp,
-                mapearListaParaJson(respostaDTOS));
-
+            ResponseUtils.escreverJson(resp,
+                    mapearListaParaJson(respostaDTOS));
+        } catch (IllegalArgumentException | IllegalStateException e){
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            ResponseUtils.escreverJson(resp, e.getMessage());
+        }
     }
 
     /**
@@ -116,7 +129,12 @@ public class ProdutoServlet extends HttpServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-        produtoController.deletar(RequestUtils.extrairHash(req));
-        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        try {
+            produtoController.deletar(RequestUtils.extrairHash(req));
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        } catch (IllegalArgumentException | IllegalStateException e){
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            ResponseUtils.escreverJson(resp, e.getMessage());
+        }
     }
 }
